@@ -1586,8 +1586,10 @@
           
           <!-- Avatar Block -->
           <div class="avatar-block">
-            <div class="avatar-frame" onclick="triggerAvatarUpload()" title="Нажмите, чтобы сменить фото">
-              <img id="userAvatarImg" class="avatar-preview" src="brand_symbol.png" alt="Аватар профиля">
+            <div class="avatar-frame" id="avatarFrameWrap" onclick="triggerAvatarUpload()" title="Нажмите, чтобы сменить фото">
+              <div id="userAvatarContainer" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                <img id="userAvatarImg" class="avatar-preview" src="brand_symbol.png" alt="Аватар профиля">
+              </div>
               <div class="avatar-overlay">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                 <span>Изменить фото</span>
@@ -1605,18 +1607,18 @@
 
           <!-- User Headline -->
           <div class="user-hero-info">
-            <h2 class="user-name-title" id="sideUserName">Александр Волков, 29</h2>
-            <p class="user-role-sub" id="sideUserRole">Архитектор &amp; Урбанист • Москва (Хамовники)</p>
+            <h2 class="user-name-title" id="sideUserName">Александр Волков, 31</h2>
+            <p class="user-role-sub" id="sideUserRole">Архитектор систем • Москва</p>
           </div>
 
           <!-- Quick Stats -->
           <div class="quick-stats-row">
             <div>
-              <div class="stat-box-val">5.0 ★</div>
+              <div class="stat-box-val" id="sideUserReputation">5.0 ★</div>
               <div class="stat-box-lbl">Репутация резидента</div>
             </div>
             <div>
-              <div class="stat-box-val">432 Гц</div>
+              <div class="stat-box-val" id="sideUserFreq">432 Гц</div>
               <div class="stat-box-lbl">Частота созвучия</div>
             </div>
           </div>
@@ -1630,8 +1632,8 @@
           <!-- Audio Voice Bio Snippet -->
           <div class="sidebar-voice-snippet">
             <div class="voice-snippet-title">
-              <span>🎙 Аудио-визитка (0:48)</span>
-              <span style="color: var(--text-subtle); font-size: 10px;">АКТИВНА</span>
+              <span id="sideVoiceSnippetLabel">🎙 Аудио-визитка (0:24)</span>
+              <span id="sideVoiceActiveTag" style="color: var(--text-subtle); font-size: 10px;">АКТИВНА</span>
             </div>
             <div class="voice-play-strip">
               <button class="mini-play-btn" id="miniPlayBtn" onclick="toggleSidebarAudio()">
@@ -1642,7 +1644,10 @@
                 <!-- Bars dynamically created -->
               </div>
             </div>
-            <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+            <p id="sideVoiceTopicDesc" style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+              Тема: «О чем я могу говорить часами без остановки»
+            </p>
+          </div>
               Тема: «О чем я могу говорить часами без остановки»
             </p>
           </div>
@@ -2209,21 +2214,21 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 <span>Ваш текущий статус матча</span>
               </h3>
-              <span class="header-status-badge">АКТИВНОЕ БРОНИРОВАНИЕ</span>
+              <span class="header-status-badge" id="matchStatusHeaderBadge">АКТИВНОЕ БРОНИРОВАНИЕ</span>
             </div>
 
             <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: var(--radius-md); padding: 24px; margin-bottom: 20px;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
                 <div>
-                  <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--gold-primary);">Свидание подтверждено парой</span>
-                  <h3 style="font-size: 22px; margin: 4px 0 8px;">Анна &amp; Александр</h3>
-                  <p style="color: var(--text-muted); font-size: 14px;">Локация: <strong>Винный бар «Стрелка / Lounge» (Берсеневская наб., 14)</strong></p>
-                  <p style="color: var(--text-muted); font-size: 14px;">Время: <strong>Завтра (пятница), 20:00</strong> • Столик #7 на двоих</p>
+                  <span id="matchHeaderStatusPill" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--gold-primary);">Свидание подтверждено парой</span>
+                  <h3 id="matchPairTitle" style="font-size: 22px; margin: 4px 0 8px;">Анна &amp; Александр</h3>
+                  <p id="matchVenueDesc" style="color: var(--text-muted); font-size: 14px;">Локация: <strong>Винный бар «Стрелка / Lounge» (Берсеневская наб., 14)</strong></p>
+                  <p id="matchTimeDesc" style="color: var(--text-muted); font-size: 14px;">Время: <strong>Завтра (пятница), 20:00</strong> • Столик #7 на двоих</p>
                 </div>
                 <div style="text-align: right;">
                   <span style="font-size: 11px; color: var(--text-subtle);">КОД БРОНИ</span>
-                  <div style="font-family: monospace; font-size: 20px; color: var(--gold-light); font-weight: 700;">RES-BER-770</div>
-                  <span style="font-size: 11px; color: #34D399;">✦ 2 комплимента от сомелье включены</span>
+                  <div id="matchBookingCodeVal" style="font-family: monospace; font-size: 20px; color: var(--gold-light); font-weight: 700;">RES-BER-770</div>
+                  <span id="matchPerkVal" style="font-size: 11px; color: #34D399;">✦ 2 комплимента от сомелье включены</span>
                 </div>
               </div>
             </div>
@@ -2656,10 +2661,27 @@
     let sidebarAudioInstance = null;
     let currentActiveAudio = null;
     let currentPlayingWho = null;
+    let currentResidentVoiceFile = 'alexander_voice.mp3';
+    let currentResidentVoiceLabel = 'Александр Волков (432 Гц)';
+
+    function setResidentVoiceTrack(audioFile, label) {
+      if (sidebarAudioInstance) {
+        sidebarAudioInstance.pause();
+        sidebarAudioInstance = null;
+      }
+      currentResidentVoiceFile = audioFile || 'alexander_voice.mp3';
+      currentResidentVoiceLabel = label || 'Голосовая визитка резидента';
+      isMiniPlaying = false;
+      const playIcon = document.getElementById('miniPlayIcon');
+      const pauseIcon = document.getElementById('miniPauseIcon');
+      if (playIcon) playIcon.style.display = 'block';
+      if (pauseIcon) pauseIcon.style.display = 'none';
+      document.querySelectorAll('.mini-wave-bar').forEach(b => b.classList.remove('playing'));
+    }
 
     function toggleSidebarAudio() {
       if (!sidebarAudioInstance) {
-        sidebarAudioInstance = new Audio('alexander_voice.mp3');
+        sidebarAudioInstance = new Audio(currentResidentVoiceFile);
         sidebarAudioInstance.onended = () => {
           isMiniPlaying = false;
           document.getElementById('miniPlayIcon').style.display = 'block';
@@ -2677,7 +2699,7 @@
         document.getElementById('miniPlayIcon').style.display = 'none';
         document.getElementById('miniPauseIcon').style.display = 'block';
         document.querySelectorAll('.mini-wave-bar').forEach(b => b.classList.add('playing'));
-        showToast('Воспроизведение: Александр Волков (Мужской голос • 432 Гц)');
+        showToast(`Воспроизведение: ${currentResidentVoiceLabel}`);
       } else {
         sidebarAudioInstance.pause();
         document.getElementById('miniPlayIcon').style.display = 'block';
@@ -3674,80 +3696,593 @@
     });
 
     /* ====================================================================
-       AUTHENTICATION SYNC & LOGOUT (BRANCH 1.0.3_Login)
-       Frontend <-> Backend <-> Database Token Verification
+       AUTHENTICATION SYNC & DYNAMIC RESIDENT CABINET (BRANCH 1.0.3_Login)
+       Opens the exact resident's page matching the email used at login
        ==================================================================== */
-    async function loadAuthenticatedResident() {
-      // 1. Instant UI paint from local cache to prevent layout shift
-      const raw = localStorage.getItem('resonance_auth_user');
-      let cachedUser = null;
-      if (raw) {
-        try {
-          cachedUser = JSON.parse(raw);
-          if (cachedUser) applyUserDataToUI(cachedUser, false);
-        } catch (e) {}
+    const RESIDENT_OFFLINE_PROFILES = {
+      "alexander.volkov@resonance.club": {
+        id: 1,
+        full_name: "Александр Волков",
+        first_name: "Александр",
+        email: "alexander.volkov@resonance.club",
+        gender: "Мужчина",
+        role: "resident",
+        status: "verified_member",
+        vip_pass_code: "RES-8841-VIP",
+        reputation_score: 5.0,
+        profile: {
+          age: 31,
+          city: "Москва",
+          occupation: "Архитектор сложных систем & Яхтсмен",
+          archetype: "Мудрец • Архитектор",
+          acoustic_frequency_hz: 432,
+          bio: "Ищу человека, с которым молчание наполнено смыслом больше, чем тысячи пустых слов. Ценю внутреннюю автономию, ночное море и тонкую иронию."
+        },
+        voice_bio: {
+          audio_file: "alexander_voice.mp3",
+          duration_sec: 24,
+          transcription: "Для меня настоящая близость начинается там, где исчезает необходимость казаться кем-то другим..."
+        },
+        match: {
+          match_id: 1,
+          resonance_score: 94,
+          status: "booked",
+          partner: {
+            id: 2,
+            full_name: "Анна Соколова",
+            first_name: "Анна",
+            age: 28,
+            occupation: "Арт-директор бюро пространств",
+            city: "Москва",
+            acoustic_frequency_hz: 528
+          },
+          venue: {
+            name: "Ресторан «Белуга»",
+            address: "Моховая ул., 15/1",
+            time: "Пятница, 20:00",
+            perk: "Столик у панорамного окна с видом на Кремль + 2 комплимента от шеф-повара"
+          }
+        }
+      },
+      "anna.sokolova@resonance.club": {
+        id: 2,
+        full_name: "Анна Соколова",
+        first_name: "Анна",
+        email: "anna.sokolova@resonance.club",
+        gender: "Женщина",
+        role: "resident",
+        status: "verified_member",
+        vip_pass_code: "RES-5283-VIP",
+        reputation_score: 5.0,
+        profile: {
+          age: 28,
+          city: "Москва",
+          occupation: "Арт-директор бюро пространств",
+          archetype: "Творец • Эстет",
+          acoustic_frequency_hz: 528,
+          bio: "Создаю атмосферу и архитектуру света. Верю, что красота кроется в деталях и честности перед собой. Мечтаю о партнере для интеллектуальных путешествий."
+        },
+        voice_bio: {
+          audio_file: "anna_voice.mp3",
+          duration_sec: 21,
+          transcription: "Пространство оживает тогда, когда в нем появляется искренний человек..."
+        },
+        match: {
+          match_id: 1,
+          resonance_score: 94,
+          status: "booked",
+          partner: {
+            id: 1,
+            full_name: "Александр Волков",
+            first_name: "Александр",
+            age: 31,
+            occupation: "Архитектор сложных систем & Яхтсмен",
+            city: "Москва",
+            acoustic_frequency_hz: 432
+          },
+          venue: {
+            name: "Ресторан «Белуга»",
+            address: "Моховая ул., 15/1",
+            time: "Пятница, 20:00",
+            perk: "Столик у панорамного окна с видом на Кремль + 2 комплимента от шеф-повара"
+          }
+        }
+      },
+      "sofia.m@resonance.club": {
+        id: 3,
+        full_name: "София Мельникова",
+        first_name: "София",
+        email: "sofia.m@resonance.club",
+        gender: "Женщина",
+        role: "resident",
+        status: "verified_member",
+        vip_pass_code: "RES-3965-VIP",
+        reputation_score: 5.0,
+        profile: {
+          age: 26,
+          city: "Санкт-Петербург",
+          occupation: "Биохимик & Исследователь сознания",
+          archetype: "Мудрец • Мыслитель",
+          acoustic_frequency_hz: 396,
+          bio: "Изучаю природу восприятия и биохимию эмоций. В отношениях важен глубокий резонанс ценностей и способность к открытому диалогу без масок."
+        },
+        voice_bio: {
+          audio_file: "sofia_voice.mp3",
+          duration_sec: 26,
+          transcription: "Звук человеческого голоса передает тончайшие оттенки эмоциональной правды..."
+        },
+        match: {
+          match_id: 2,
+          resonance_score: 91,
+          status: "active_24h",
+          partner: {
+            id: 6,
+            full_name: "Максим Белов",
+            first_name: "Максим",
+            age: 34,
+            occupation: "Основатель EdTech платформы",
+            city: "Москва",
+            acoustic_frequency_hz: 432
+          },
+          venue: {
+            name: "Кофейня «Эрмитаж»",
+            address: "Невский пр., 28",
+            time: "Суббота, 16:30",
+            perk: "Закрытый тихий зал библиотеки + спешелти дегустация"
+          }
+        }
+      },
+      "polina.reyn@resonance.club": {
+        id: 4,
+        full_name: "Полина Рейн",
+        first_name: "Полина",
+        email: "polina.reyn@resonance.club",
+        gender: "Женщина",
+        role: "resident",
+        status: "verified_member",
+        vip_pass_code: "RES-6391-VIP",
+        reputation_score: 5.0,
+        profile: {
+          age: 29,
+          city: "Санкт-Петербург",
+          occupation: "Нейробиолог & Альпинистка",
+          archetype: "Искатель • Новатор",
+          acoustic_frequency_hz: 639,
+          bio: "Исследую нейронные сети и горные вершины. Люблю долгие разговоры у камина, чистый воздух и верность собственному слову."
+        },
+        voice_bio: {
+          audio_file: "polina_voice.mp3",
+          duration_sec: 22,
+          transcription: "В тишине высокогорья начинаешь понимать, что действительно имеет значение..."
+        },
+        match: {
+          match_id: 3,
+          resonance_score: 93,
+          status: "active_24h",
+          partner: {
+            id: 8,
+            full_name: "Дмитрий Морозов",
+            first_name: "Дмитрий",
+            age: 32,
+            occupation: "Врач-нейрохирург",
+            city: "Санкт-Петербург",
+            acoustic_frequency_hz: 432
+          },
+          venue: {
+            name: "Harvest",
+            address: "пр. Добролюбова, 11",
+            time: "Пятница, 19:30",
+            perk: "Лучший столик на втором уровне ресторана + фирменный десертный пейринг"
+          }
+        }
+      },
+      "elena.romanova@resonance.club": {
+        id: 5,
+        full_name: "Елена Романова",
+        first_name: "Елена",
+        email: "elena.romanova@resonance.club",
+        gender: "Женщина",
+        role: "resident",
+        status: "verified_member",
+        vip_pass_code: "RES-8524-VIP",
+        reputation_score: 5.0,
+        profile: {
+          age: 27,
+          city: "Москва",
+          occupation: "Куратор музейных выставок",
+          archetype: "Эстет • Хранитель",
+          acoustic_frequency_hz: 528,
+          bio: "Курирую международные арт-проекты. Ценю душевную щедрость, культуру диалога и умение ценить тихие радости каждого дня."
+        },
+        voice_bio: {
+          audio_file: "elena_voice.mp3",
+          duration_sec: 25,
+          transcription: "Искусство учит нас сопереживанию и вниманию к тонким внутренним движениям души..."
+        },
+        match: null
+      },
+      "maxim.belov@resonance.club": {
+        id: 6,
+        full_name: "Максим Белов",
+        first_name: "Максим",
+        email: "maxim.belov@resonance.club",
+        gender: "Мужчина",
+        role: "candidate",
+        status: "waitlist",
+        vip_pass_code: "RES-7104-WAIT",
+        reputation_score: 5.0,
+        profile: {
+          age: 34,
+          city: "Москва",
+          occupation: "Основатель EdTech платформы",
+          archetype: "Правитель • Новатор",
+          acoustic_frequency_hz: 432,
+          bio: "Люблю сложные книги, горные лыжи и вечерние прогулки по бульварам. Ищу союз равных умов."
+        },
+        voice_bio: {
+          audio_file: "alexander_voice.mp3",
+          duration_sec: 24,
+          transcription: "Качественное образование и искреннее общение меняют траекторию жизни..."
+        },
+        match: {
+          match_id: 2,
+          resonance_score: 91,
+          status: "active_24h",
+          partner: {
+            id: 3,
+            full_name: "София Мельникова",
+            first_name: "София",
+            age: 26,
+            occupation: "Биохимик & Исследователь сознания",
+            city: "Санкт-Петербург",
+            acoustic_frequency_hz: 396
+          },
+          venue: {
+            name: "Кофейня «Эрмитаж»",
+            address: "Невский пр., 28",
+            time: "Суббота, 16:30",
+            perk: "Закрытый тихий зал библиотеки + спешелти дегустация"
+          }
+        }
+      },
+      "daria.g@resonance.club": {
+        id: 7,
+        full_name: "Дарья Григорьева",
+        first_name: "Дарья",
+        email: "daria.g@resonance.club",
+        gender: "Женщина",
+        role: "candidate",
+        status: "waitlist",
+        vip_pass_code: "RES-8921-WAIT",
+        reputation_score: 5.0,
+        profile: {
+          age: 28,
+          city: "Москва",
+          occupation: "Архитектор ландшафтов & Ботаник",
+          archetype: "Творец • Хранитель",
+          acoustic_frequency_hz: 528,
+          bio: "Создаю японские сады камней и закрытые оранжереи. Люблю природу, уютные интерьеры и искренних людей."
+        },
+        voice_bio: {
+          audio_file: "anna_voice.mp3",
+          duration_sec: 20,
+          transcription: "Сад — это пространство замедления, где время обретает осязаемую тишину..."
+        },
+        match: null
+      },
+      "dmitry.m@resonance.club": {
+        id: 8,
+        full_name: "Дмитрий Морозов",
+        first_name: "Дмитрий",
+        email: "dmitry.m@resonance.club",
+        gender: "Мужчина",
+        role: "candidate",
+        status: "waitlist",
+        vip_pass_code: "RES-9411-WAIT",
+        reputation_score: 5.0,
+        profile: {
+          age: 32,
+          city: "Санкт-Петербург",
+          occupation: "Врач-нейрохирург",
+          archetype: "Мудрец • Исцелитель",
+          acoustic_frequency_hz: 432,
+          bio: "Спасаю жизни в операционной. Вне работы люблю джаз, винил и шахматы."
+        },
+        voice_bio: {
+          audio_file: "alexander_voice.mp3",
+          duration_sec: 23,
+          transcription: "В нейрохирургии важна абсолютная концентрация и внутреннее спокойствие..."
+        },
+        match: {
+          match_id: 3,
+          resonance_score: 93,
+          status: "active_24h",
+          partner: {
+            id: 4,
+            full_name: "Полина Рейн",
+            first_name: "Полина",
+            age: 29,
+            occupation: "Нейробиолог & Альпинистка",
+            city: "Санкт-Петербург",
+            acoustic_frequency_hz: 639
+          },
+          venue: {
+            name: "Harvest",
+            address: "пр. Добролюбова, 11",
+            time: "Пятница, 19:30",
+            perk: "Лучший столик на втором уровне ресторана + фирменный десертный пейринг"
+          }
+        }
+      },
+      "ekaterina.v@resonance.club": {
+        id: 9,
+        full_name: "Екатерина Воронина",
+        first_name: "Екатерина",
+        email: "ekaterina.v@resonance.club",
+        gender: "Женщина",
+        role: "candidate",
+        status: "waitlist",
+        vip_pass_code: "RES-4512-WAIT",
+        reputation_score: 5.0,
+        profile: {
+          age: 27,
+          city: "Москва",
+          occupation: "Литературный переводчик с французского",
+          archetype: "Любящий • Эстет",
+          acoustic_frequency_hz: 528,
+          bio: "Перевожу философские романы и эссе. Люблю старые кофейни, артхаусное кино и долгие ночные разговоры."
+        },
+        voice_bio: {
+          audio_file: "sofia_voice.mp3",
+          duration_sec: 25,
+          transcription: "Перевод — это искусство уловить дыхание чужой мысли и бережно передать его в родной язык..."
+        },
+        match: null
+      }
+    };
+
+    function generateResidentAvatarSvg(user) {
+      const name = user.full_name || 'Резидент';
+      const parts = name.split(' ');
+      const initials = parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+      const isFemale = user.gender === 'Женщина';
+      const em = (user.email || '').toLowerCase();
+
+      let bg1 = '#1E1B4B', bg2 = '#0F172A', accent = '#D4AF37', faceLight = '#FCD34D';
+      if (em.includes('anna')) {
+        bg1 = '#4C0519'; bg2 = '#1F0E1C'; accent = '#F472B6'; faceLight = '#FDA4AF';
+      } else if (em.includes('sofia')) {
+        bg1 = '#2E1065'; bg2 = '#0F172A'; accent = '#A855F7'; faceLight = '#E879F9';
+      } else if (em.includes('polina')) {
+        bg1 = '#0C4A6E'; bg2 = '#082F49'; accent = '#38BDF8'; faceLight = '#7DD3FC';
+      } else if (em.includes('elena')) {
+        bg1 = '#064E3B'; bg2 = '#022C22'; accent = '#34D399'; faceLight = '#6EE7B7';
+      } else if (em.includes('maxim')) {
+        bg1 = '#451A03'; bg2 = '#1C1917'; accent = '#F59E0B'; faceLight = '#FCD34D';
+      } else if (em.includes('daria')) {
+        bg1 = '#14532D'; bg2 = '#052E16'; accent = '#10B981'; faceLight = '#86EFAC';
+      } else if (em.includes('dmitry')) {
+        bg1 = '#172554'; bg2 = '#0F172A'; accent = '#60A5FA'; faceLight = '#93C5FD';
+      } else if (em.includes('ekaterina')) {
+        bg1 = '#3B0764'; bg2 = '#1E0836'; accent = '#E879F9'; faceLight = '#F0ABFC';
       }
 
-      // 2. Validate session & token with Backend Database (/api/auth/me)
-      const token = localStorage.getItem('resonance_token');
+      const uid = user.id || Math.floor(Math.random() * 1000);
+      return `
+        <svg viewBox="0 0 300 375" preserveAspectRatio="xMidYMid slice" style="width:100%; height:100%; border-radius: var(--radius-md);">
+          <defs>
+            <linearGradient id="avGrad_${uid}" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="${bg1}"/>
+              <stop offset="100%" stop-color="${bg2}"/>
+            </linearGradient>
+            <radialGradient id="avFace_${uid}" cx="50%" cy="35%" r="45%">
+              <stop offset="0%" stop-color="${faceLight}" stop-opacity="0.85"/>
+              <stop offset="60%" stop-color="${accent}" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#avGrad_${uid})"/>
+          <circle cx="150" cy="140" r="70" fill="url(#avFace_${uid})"/>
+          <circle cx="150" cy="130" r="${isFemale ? 42 : 46}" fill="${accent}" opacity="0.9"/>
+          <path d="M 75 285 C 75 195, 225 195, 225 285 Z" fill="${bg1}" stroke="${accent}" stroke-width="1.5" opacity="0.85"/>
+          <circle cx="138" cy="120" r="3" fill="#0A0B0E"/>
+          <circle cx="162" cy="120" r="3" fill="#0A0B0E"/>
+          <path d="M 142 135 Q 150 142 158 135" stroke="#0A0B0E" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <g transform="translate(18, 18)">
+            <rect width="44" height="24" rx="12" fill="rgba(10,11,16,0.75)" stroke="${accent}" stroke-width="1"/>
+            <text x="22" y="16" font-family="sans-serif" font-size="11" font-weight="700" fill="${accent}" text-anchor="middle">${initials}</text>
+          </g>
+          <text x="150" y="332" font-family="'Cormorant Garamond', serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">${name.toUpperCase()}</text>
+        </svg>
+      `;
+    }
+
+    async function loadAuthenticatedResident() {
+      // 1. Detect if a specific resident was requested via URL: ?user=email or ?id=...
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryParam = urlParams.get('user') || urlParams.get('email') || urlParams.get('id');
+
+      let userToApply = null;
+
+      // Check offline database dictionary first for instant zero-latency paint
+      if (queryParam) {
+        const decoded = decodeURIComponent(queryParam).toLowerCase();
+        for (const [em, data] of Object.entries(RESIDENT_OFFLINE_PROFILES)) {
+          if (em.toLowerCase() === decoded || String(data.id) === decoded) {
+            userToApply = data;
+            break;
+          }
+        }
+      }
+
+      // If no query param, check localStorage
+      if (!userToApply) {
+        const raw = localStorage.getItem('resonance_auth_user');
+        if (raw) {
+          try {
+            userToApply = JSON.parse(raw);
+          } catch(e) {}
+        }
+      }
+
+      // Default to Alexander Volkov if nothing specified
+      if (!userToApply) {
+        userToApply = RESIDENT_OFFLINE_PROFILES["alexander.volkov@resonance.club"];
+      }
+
+      // Apply immediately
+      applyUserDataToUI(userToApply, false);
+
+      // Async verification with backend API
       try {
-        const headers = {};
+        let endpoint = '/api/auth/me';
+        let headers = {};
+        const token = localStorage.getItem('resonance_token');
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const res = await fetch('/api/auth/me', { headers });
+        if (queryParam) {
+          endpoint = `/api/users/${encodeURIComponent(queryParam)}`;
+        }
+
+        const res = await fetch(endpoint, { headers });
         if (res.ok) {
           const data = await res.json();
-          if (data.authenticated && data.user) {
-            localStorage.setItem('resonance_auth_user', JSON.stringify(data.user));
-            applyUserDataToUI(data.user, true);
+          const serverUser = data.user;
+          if (serverUser && serverUser.full_name) {
+            localStorage.setItem('resonance_auth_user', JSON.stringify(serverUser));
+            applyUserDataToUI(serverUser, true);
           }
         }
       } catch (err) {
-        // Offline / static preview fallback
-        if (cachedUser) {
-          applyUserDataToUI(cachedUser, true);
-        }
+        // Continue with local data
       }
     }
 
     function applyUserDataToUI(user, showGreeting) {
       if (!user || !user.full_name) return;
 
-      // Populate input fields
-      const nameInput = document.getElementById('inputName');
-      const ageInput = document.getElementById('inputAge');
-      const jobInput = document.getElementById('inputJob');
-      const cityInput = document.getElementById('inputDistrict');
+      const firstName = user.first_name || user.full_name.split(' ')[0];
+      const age = user.profile?.age || 28;
+      const job = user.profile?.occupation || 'Резидент клуба';
+      const city = user.profile?.city || 'Москва';
+      const freq = user.profile?.acoustic_frequency_hz || 432;
+      const bio = user.profile?.bio || '';
+      const rep = user.reputation_score || 5.0;
+      const vip = user.vip_pass_code || 'RES-VIP';
 
-      if (nameInput) nameInput.value = user.full_name;
-      if (ageInput && user.profile && user.profile.age) ageInput.value = user.profile.age;
-      if (jobInput && user.profile && user.profile.occupation) jobInput.value = user.profile.occupation;
-      if (cityInput && user.profile && user.profile.city) cityInput.value = user.profile.city;
+      // 1. Update Document Title
+      document.title = `${user.full_name} • Кабинет резидента | Клуб РЕЗОНАНС`;
 
-      // Live Sync to sidebar
-      if (typeof updateSideInfo === 'function') {
-        updateSideInfo();
-      }
-
-      // Update VIP code
-      const vipElem = document.getElementById('userVipCode');
-      if (vipElem && user.vip_pass_code) {
-        vipElem.textContent = user.vip_pass_code;
-      }
-
-      // Update header status badge
-      const badge = document.querySelector('.header-status-badge');
-      if (badge) {
+      // 2. Header Status Badge
+      const headerBadge = document.querySelector('.header-status-badge');
+      if (headerBadge) {
         if (user.role === 'resident') {
-          badge.innerHTML = `<span class="pulse-green"></span> Верифицированный резидент: <strong>${user.full_name}</strong>`;
-        } else if (user.role === 'candidate') {
-          badge.innerHTML = `<span class="pulse-green" style="background:#F59E0B; box-shadow:0 0 10px rgba(245,158,11,0.6);"></span> Кандидат в листе ожидания: <strong>${user.full_name}</strong>`;
+          headerBadge.innerHTML = `<span class="pulse-green"></span> Верифицированный резидент: <strong>${user.full_name}</strong>`;
+        } else {
+          headerBadge.innerHTML = `<span class="pulse-green" style="background:#F59E0B; box-shadow:0 0 10px rgba(245,158,11,0.6);"></span> Кандидат в листе ожидания: <strong>${user.full_name}</strong>`;
         }
       }
 
-      // Optional welcome toast
+      // 3. Dynamic Avatar
+      const avatarContainer = document.getElementById('userAvatarContainer');
+      if (avatarContainer) {
+        avatarContainer.innerHTML = generateResidentAvatarSvg(user);
+      }
+
+      // 4. Sidebar Details
+      const sideName = document.getElementById('sideUserName');
+      if (sideName) sideName.textContent = `${user.full_name}, ${age}`;
+
+      const sideRole = document.getElementById('sideUserRole');
+      if (sideRole) sideRole.textContent = `${job} • ${city}`;
+
+      const sideFreq = document.getElementById('sideUserFreq');
+      if (sideFreq) sideFreq.textContent = `${freq} Гц`;
+
+      const sideRep = document.getElementById('sideUserReputation');
+      if (sideRep) sideRep.textContent = `${rep} ★`;
+
+      // 5. Sidebar Voice Bio & Audio track
+      const voiceFile = user.voice_bio?.audio_file || 'alexander_voice.mp3';
+      const voiceDur = user.voice_bio?.duration_sec || 24;
+      const voiceTopic = user.voice_bio?.transcription ? user.voice_bio.transcription.slice(0, 65) + '...' : 'О чем я могу говорить часами без остановки';
+
+      const voiceSnippetLabel = document.getElementById('sideVoiceSnippetLabel');
+      if (voiceSnippetLabel) voiceSnippetLabel.textContent = `🎙 Аудио-визитка (0:${voiceDur})`;
+
+      const voiceTopicDesc = document.getElementById('sideVoiceTopicDesc');
+      if (voiceTopicDesc) voiceTopicDesc.textContent = `Тема: «${voiceTopic}»`;
+
+      setResidentVoiceTrack(voiceFile, `${user.full_name} (${freq} Гц)`);
+
+      // 6. Form Inputs (Tab 1)
+      const inputName = document.getElementById('inputName');
+      if (inputName) inputName.value = user.full_name;
+
+      const inputAge = document.getElementById('inputAge');
+      if (inputAge) inputAge.value = age;
+
+      const inputJob = document.getElementById('inputJob');
+      if (inputJob) inputJob.value = job;
+
+      const inputDistrict = document.getElementById('inputDistrict');
+      if (inputDistrict) inputDistrict.value = city;
+
+      const inputAbout = document.getElementById('inputAbout');
+      if (inputAbout) inputAbout.value = bio;
+
+      const partnerGenderSel = document.getElementById('inputPartnerGender');
+      if (partnerGenderSel) {
+        partnerGenderSel.value = (user.gender === 'Мужчина') ? 'f' : 'm';
+      }
+
+      const vipIdElem = document.querySelector('.form-section-header span[style*="gold-primary"]');
+      if (vipIdElem) vipIdElem.textContent = `ID: ${vip}`;
+
+      // 7. Weekly Match & Concierge Booking (Tab 4)
+      const matchPairTitle = document.getElementById('matchPairTitle');
+      const matchHeaderPill = document.getElementById('matchHeaderStatusPill');
+      const matchVenueDesc = document.getElementById('matchVenueDesc');
+      const matchTimeDesc = document.getElementById('matchTimeDesc');
+      const matchCodeVal = document.getElementById('matchBookingCodeVal');
+      const matchPerkVal = document.getElementById('matchPerkVal');
+      const matchStatusBadge = document.getElementById('matchStatusHeaderBadge');
+
+      if (user.match && user.match.partner) {
+        const partner = user.match.partner;
+        const partnerFirst = partner.first_name || partner.full_name.split(' ')[0];
+        if (matchPairTitle) matchPairTitle.textContent = `${firstName} & ${partnerFirst}`;
+        if (matchHeaderPill) matchHeaderPill.textContent = (user.match.status === 'booked') ? 'Свидание подтверждено парой' : 'Акустический контакт недели';
+        if (matchStatusBadge) matchStatusBadge.textContent = (user.match.status === 'booked') ? 'АКТИВНОЕ БРОНИРОВАНИЕ' : 'АКУСТИЧЕСКИЙ МАТЧ';
+        if (matchVenueDesc) matchVenueDesc.innerHTML = `Локация: <strong>${user.match.venue?.name || 'Винный бар «Стрелка / Lounge»'}</strong> (${user.match.venue?.address || 'Москва'})`;
+        if (matchTimeDesc) matchTimeDesc.innerHTML = `Время: <strong>${user.match.venue?.time || 'Завтра (пятница), 20:00'}</strong> • Столик на двоих`;
+        if (matchCodeVal) matchCodeVal.textContent = `RES-${firstName.slice(0, 3).toUpperCase()}-770`;
+        if (matchPerkVal) matchPerkVal.textContent = user.match.venue?.perk ? `✦ ${user.match.venue.perk.slice(0, 50)}...` : '✦ 2 комплимента от сомелье включены';
+      } else {
+        if (matchPairTitle) matchPairTitle.textContent = 'Ожидание следующего четверга';
+        if (matchHeaderPill) matchHeaderPill.textContent = 'Матч в процессе калибровки';
+        if (matchStatusBadge) matchStatusBadge.textContent = 'КАЛИБРОВКА МАТЧА';
+        if (matchVenueDesc) matchVenueDesc.innerHTML = 'Консьерж-служба анализирует ценностные профили сообщества';
+        if (matchTimeDesc) matchTimeDesc.innerHTML = 'Открытие персонального матча: <strong>в четверг ровно в 19:00</strong>';
+        if (matchCodeVal) matchCodeVal.textContent = vip;
+        if (matchPerkVal) matchPerkVal.textContent = '✦ Бронь концептуальной локации консьержем клуба';
+      }
+
+      // 8. Quiz Report subtitle
+      const quizSub = document.getElementById('quizReportPartnerSubtitle');
+      if (quizSub) {
+        quizSub.textContent = `Синхронизация психотипов: ${user.full_name} & София Романова`;
+      }
+
+      // 9. Voice dialogue modal user label
+      const msgHeader = document.querySelector('#alexanderWaveBars');
+      if (msgHeader && msgHeader.previousElementSibling) {
+        msgHeader.previousElementSibling.children[0].textContent = `Ваш голосовой ответ (${user.full_name})`;
+      }
+
+      // 10. Optional welcome toast
       if (showGreeting && typeof showToast === 'function') {
-        showToast(`Добро пожаловать в кабинет, ${user.full_name}!`);
+        showToast(`Добро пожаловать в персональный кабинет, ${user.full_name}!`);
       }
     }
 

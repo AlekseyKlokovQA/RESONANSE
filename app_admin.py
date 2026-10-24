@@ -70,7 +70,7 @@ async def root():
 # ----------------------------------------------------------------------
 from pydantic import BaseModel
 from database import SyncSessionLocal
-from models import User, Profile
+from models import User, Profile, VoiceBio, WeeklyMatch, DateBooking, Venue
 
 AUTH_SECRET_KEY = "resonance_auth_secret_token_vault_key_2026"
 
@@ -110,7 +110,8 @@ def verify_access_token(token: str) -> dict | None:
         return None
 
 
-def serialize_user(user: User) -> dict:
+def serialize_user(user: User, session=None) -> dict:
+    """Serializes full resident profile, voice bio, and active weekly match."""
     profile_data = {}
     if user.profile:
         profile_data = {
@@ -123,9 +124,58 @@ def serialize_user(user: User) -> dict:
             "photos_unlocked": user.profile.photos_unlocked
         }
 
+    voice_data = None
+    if user.voice_bio:
+        voice_data = {
+            "audio_file": user.voice_bio.audio_file,
+            "duration_sec": user.voice_bio.duration_sec,
+            "transcription": user.voice_bio.transcription
+        }
+
+    match_data = None
+    if session:
+        wm = (
+            session.query(WeeklyMatch)
+            .filter((WeeklyMatch.user1_id == user.id) | (WeeklyMatch.user2_id == user.id))
+            .first()
+        )
+        if wm:
+            p_id = wm.user2_id if wm.user1_id == user.id else wm.user1_id
+            partner = session.query(User).filter(User.id == p_id).first()
+            if partner:
+                booking = session.query(DateBooking).filter(DateBooking.match_id == wm.id).first()
+                venue_data = None
+                if booking:
+                    v = session.query(Venue).filter(Venue.id == booking.venue_id).first()
+                    if v:
+                        venue_data = {
+                            "name": v.name,
+                            "address": v.address,
+                            "time": str(booking.booking_time)[:16],
+                            "status": booking.status,
+                            "perk": v.club_perk
+                        }
+                match_data = {
+                    "match_id": wm.id,
+                    "resonance_score": wm.resonance_score,
+                    "status": wm.status,
+                    "partner": {
+                        "id": partner.id,
+                        "full_name": partner.full_name,
+                        "first_name": partner.full_name.split()[0],
+                        "age": partner.profile.age if partner.profile else 28,
+                        "occupation": partner.profile.occupation if partner.profile else "Резидент",
+                        "city": partner.profile.city if partner.profile else "Москва",
+                        "acoustic_frequency_hz": partner.profile.acoustic_frequency_hz if partner.profile else 432,
+                        "voice_file": partner.voice_bio.audio_file if partner.voice_bio else "sofia_voice.mp3"
+                    },
+                    "venue": venue_data
+                }
+
     return {
         "id": user.id,
         "full_name": user.full_name,
+        "first_name": user.full_name.split()[0],
         "email": user.email,
         "phone": user.phone,
         "gender": user.gender,
@@ -133,7 +183,9 @@ def serialize_user(user: User) -> dict:
         "status": user.status,
         "vip_pass_code": user.vip_pass_code,
         "reputation_score": user.reputation_score,
-        "profile": profile_data
+        "profile": profile_data,
+        "voice_bio": voice_data,
+        "match": match_data
     }
 
 
@@ -203,7 +255,7 @@ def auth_login(req: LoginRequest, response: Response):
             max_age=86400 * 7
         )
 
-        user_data = serialize_user(user)
+        user_data = serialize_user(user, session=session)
 
         # Step 9: Returns token and authorized user data
         return {
@@ -248,8 +300,30 @@ def auth_me(request: Request, response: Response):
 
         return {
             "authenticated": True,
-            "user": serialize_user(user)
+            "user": serialize_user(user, session=session)
         }
+    finally:
+        session.close()
+
+
+@app.get("/api/users/{identifier}")
+def get_user_profile(identifier: str):
+    """Returns the full public profile and match data for a resident by ID or Email."""
+    session = SyncSessionLocal()
+    try:
+        ident = identifier.strip()
+        if ident.isdigit():
+            user = session.query(User).filter(User.id == int(ident)).first()
+        else:
+            user = session.query(User).filter(User.email.ilike(ident)).first()
+
+        if not user:
+            return JSONResponse(status_code=404, content={"success": False, "message": "Резидент не найден"})
+
+        if user.role == "superadmin":
+            return JSONResponse(status_code=403, content={"success": False, "message": "Доступ к профилю суперадминистратора ограничен"})
+
+        return {"success": True, "user": serialize_user(user, session=session)}
     finally:
         session.close()
 
@@ -258,6 +332,7 @@ def auth_me(request: Request, response: Response):
 def auth_logout(response: Response):
     """Clears the session cookie on backend."""
     response.delete_cookie("resonance_session")
+    return {"success": True, "message": "Сессия успешно завершена"}
     return {"success": True, "message": "Сессия успешно завершена"}
 
 
@@ -300,6 +375,7 @@ async def index_page():
 
 
 @app.api_route("/profile.html", methods=["GET", "HEAD"])
+@app.api_route("/profile", methods=["GET", "HEAD"])
 async def profile_page():
     return FileResponse(os.path.join(BASE_DIR, "profile.html"))
 

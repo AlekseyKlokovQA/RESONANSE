@@ -3178,13 +3178,14 @@
 
       const submitBtn = document.getElementById('loginSubmitBtn');
       if (submitBtn) {
-        submitBtn.innerHTML = '<span>✓ Успешный вход! Переход...</span>';
+        submitBtn.innerHTML = `<span>✓ Вход выполнен: ${user.full_name || 'Резидент'}!</span>`;
         submitBtn.style.background = '#10B981';
         submitBtn.style.color = '#FFFFFF';
       }
 
       setTimeout(() => {
-        window.location.href = 'profile.html';
+        // Redirect directly to the page of the resident whose email was used
+        window.location.href = 'profile.html?user=' + encodeURIComponent(user.email);
       }, 400);
     }
   </script>

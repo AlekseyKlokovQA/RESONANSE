@@ -481,6 +481,28 @@ def seed_database(force: bool = False):
     )
     session.add(match2)
 
+    # Dmitry + Polina match (93% resonance)
+    match3 = WeeklyMatch(
+        user1_id=saved_users["Дмитрий Морозов"].id,
+        user2_id=saved_users["Полина Рейн"].id,
+        match_date=now.date(),
+        resonance_score=93,
+        status="booked",
+        expires_at=now + timedelta(hours=20)
+    )
+    session.add(match3)
+    session.flush()
+
+    booking3 = DateBooking(
+        match_id=match3.id,
+        venue_id=saved_venues[2].id if len(saved_venues) > 2 else saved_venues[0].id,  # Harvest
+        booking_time=now + timedelta(days=1, hours=6),
+        guests_count=2,
+        status="confirmed",
+        deposit_amount=5000
+    )
+    session.add(booking3)
+
     session.commit()
     session.close()
     print("Database seeding completed successfully!")
