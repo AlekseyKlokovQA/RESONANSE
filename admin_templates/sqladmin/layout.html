@@ -1,0 +1,103 @@
+{% extends "sqladmin/base.html" %}
+{% from 'sqladmin/_macros.html' import display_menu %}
+
+{% block head_tail %}
+<!-- Google Fonts: Cormorant Garamond & Montserrat -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Resonance Admin Custom Theme -->
+<link rel="stylesheet" href="/static/css/resonance_admin.css">
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+  <!-- Resonance Obsidian Luxury Sidebar -->
+  <aside class="navbar navbar-expand-lg navbar-vertical navbar-expand-md navbar-dark" data-bs-theme="dark">
+    <div class="container-fluid">
+      <div class="navbar-brand">
+        <a href="{{ url_for('admin:index') }}" class="brand-wrapper">
+          <img src="/logo.svg" alt="Resonance Logo" class="brand-logo-img">
+          <div class="brand-text-block">
+            <span class="brand-title">РЕЗОНАНС</span>
+            <span class="brand-subtitle">Клубный Консьерж</span>
+          </div>
+        </a>
+      </div>
+
+      <nav class="navbar navbar-expand-sm shadow-none" id="navbar-menu"
+        data-sqladmin-menu="{{ admin.base_url }}">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          {{ display_menu(admin._menu, request) }}
+        </div>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="d-none d-md-block p-3 mt-auto border-top border-secondary border-opacity-25 text-center">
+        <div class="small text-muted mb-2">FastAPI + SQLAdmin v1.0.2</div>
+        <a href="/" target="_blank" class="btn btn-outline-warning btn-sm w-100 py-1" style="font-size: 0.75rem; border-color: rgba(212,175,55,0.4); color: #F3E5AB;">
+          <i class="fa fa-external-link-alt me-1"></i> Витрина Клуба
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <div class="page-wrapper">
+    <!-- Resonance Topbar with Club Pulse -->
+    <header class="res-topbar d-print-none sticky-top">
+      <div class="res-topbar-status">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span>FastAPI + SQLAdmin Движок Активен</span>
+        </div>
+        <div class="text-muted d-none d-lg-inline" style="font-size: 0.78rem;">
+          <i class="fa fa-clock me-1 text-warning"></i>
+          <span>Спринт четверга: <strong>Каждый ЧТ в 19:00</strong></span>
+        </div>
+      </div>
+
+      <div class="res-topbar-actions">
+        <a href="/" target="_blank" class="btn-visit-site">
+          <i class="fa fa-globe"></i>
+          <span>Лендинг</span>
+        </a>
+        <a href="/profile.html" target="_blank" class="btn-visit-site" style="background: rgba(167, 139, 250, 0.1); border-color: rgba(167, 139, 250, 0.3); color: #DDD6FE;">
+          <i class="fa fa-user-circle"></i>
+          <span>Кабинет Резидента</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="page-header d-print-none mt-3">
+        {% block content_header %}
+        <div class="row align-items-center">
+          <div class="col">
+            <h2 class="page-title text-warning" style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">{{ title }}</h2>
+            <div class="page-pretitle text-muted" style="letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.75rem;">{{ subtitle }}</div>
+          </div>
+        </div>
+        {% endblock %}
+      </div>
+    </div>
+
+    <div class="page-body flex-grow-1">
+      <div class="container-fluid">
+        <div class="row row-deck row-cards">
+          {% block content %} {% endblock %}
+          {% block flash %}
+          {% include 'sqladmin/flash.html' %}
+          {% endblock %}
+          {% block secret_modal %}
+          {% include 'sqladmin/secret_modal.html' %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
