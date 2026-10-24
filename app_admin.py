@@ -70,6 +70,11 @@ async def profile_page():
     return FileResponse(os.path.join(BASE_DIR, "profile.html"))
 
 
+@app.api_route("/admin.htm", methods=["GET", "HEAD"])
+async def admin_htm_page():
+    return FileResponse(os.path.join(BASE_DIR, "admin.htm"))
+
+
 @app.api_route("/logo.svg", methods=["GET", "HEAD"])
 async def logo_svg():
     return FileResponse(os.path.join(BASE_DIR, "logo.svg"), media_type="image/svg+xml")
