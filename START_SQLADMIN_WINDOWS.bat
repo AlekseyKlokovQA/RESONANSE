@@ -1,88 +1,116 @@
 @echo off
-setlocal EnableDelayedExpansion
+setlocal
+cd /d "%~dp0"
 title RESONANCE CLUB - FASTAPI + SQLADMIN BACKEND
 
 echo ====================================================================
-echo   RESONANCE CLUB - FASTAPI + SQLADMIN AUTO CRUD BACKEND (v1.0.2)
+echo   RESONANCE CLUB - FASTAPI + SQLADMIN AUTO CRUD BACKEND v1.0.2
 echo ====================================================================
 echo.
 
-:: 1. Detect Python interpreter (python or py -3 or py)
+rem Step 1: Detect working Python interpreter
 set "PYCMD="
 
-where python >nul 2>&1
-if %ERRORLEVEL% equ 0 (
-    python -c "import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)" >nul 2>&1
-    if %ERRORLEVEL% equ 0 set "PYCMD=python"
-)
+python -c "import sys" >nul 2>&1
+if %ERRORLEVEL% equ 0 set "PYCMD=python"
+if defined PYCMD goto :found_python
 
-if not defined PYCMD (
-    where py >nul 2>&1
-    if %ERRORLEVEL% equ 0 (
-        py -3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)" >nul 2>&1
-        if %ERRORLEVEL% equ 0 set "PYCMD=py -3"
-    )
-)
+py -3 -c "import sys" >nul 2>&1
+if %ERRORLEVEL% equ 0 set "PYCMD=py -3"
+if defined PYCMD goto :found_python
 
-if not defined PYCMD (
-    echo [ERROR] Python 3.8+ was not found in PATH!
-    echo Please install Python 3.10+ from https://www.python.org/
-    echo Make sure to check the box "Add Python to PATH" during installation.
-    echo.
-    pause
-    exit /b 1
-)
+py -c "import sys" >nul 2>&1
+if %ERRORLEVEL% equ 0 set "PYCMD=py"
+if defined PYCMD goto :found_python
 
-echo [INFO] Using Python interpreter: %PYCMD%
+echo [ERROR] Python was not found in your system PATH.
+echo.
+echo Please install Python 3.10+ from https://www.python.org/
+echo IMPORTANT: During installation, make sure to check:
+echo   [x] Add python.exe to PATH
+echo.
+goto :error_exit
+
+:found_python
+echo [INFO] Detected Python launcher: %PYCMD%
+%PYCMD% --version
 echo.
 
-:: 2. Check and install dependencies via "python -m pip" (not raw "pip")
-echo [1/3] Checking dependencies (fastapi, sqladmin, sqlalchemy, uvicorn)...
+rem Step 2: Check required Python packages
+echo [1/3] Checking dependencies: fastapi, sqladmin, sqlalchemy, uvicorn...
+
 %PYCMD% -c "import fastapi, sqladmin, sqlalchemy, uvicorn, greenlet, aiosqlite, wtforms" >nul 2>&1
-if %ERRORLEVEL% neq 0 (
-    echo [INFO] Required packages not found. Checking pip module...
-    %PYCMD% -m pip --version >nul 2>&1
-    if !ERRORLEVEL! neq 0 (
-        echo [INFO] Bootstrapping pip via ensurepip...
-        %PYCMD% -m ensurepip --default-pip >nul 2>&1
-    )
-    echo [INFO] Installing required packages via "%PYCMD% -m pip"...
-    %PYCMD% -m pip install fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms
-    if !ERRORLEVEL! neq 0 (
-        echo [INFO] Trying user installation mode (--user)...
-        %PYCMD% -m pip install --user fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms
-    )
-    %PYCMD% -c "import fastapi, sqladmin, sqlalchemy, uvicorn, greenlet, aiosqlite, wtforms" >nul 2>&1
-    if !ERRORLEVEL! neq 0 (
-        echo.
-        echo [ERROR] Could not install required dependencies!
-        echo Please ensure you have internet access and run manually:
-        echo   %PYCMD% -m pip install fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms
-        echo.
-        pause
-        exit /b 1
-    )
-)
-echo [OK] All Python dependencies are verified.
+if %ERRORLEVEL% equ 0 goto :deps_ok
+
+echo [INFO] Some packages are missing. Installing via %PYCMD% -m pip...
 echo.
 
-:: 3. Initialize SQLite Database and 100 Questions Pool (using "and", NOT "&")
+rem Ensure pip module is available
+%PYCMD% -m pip --version >nul 2>&1
+if %ERRORLEVEL% neq 0 %PYCMD% -m ensurepip --default-pip
+
+rem Install packages via pip
+%PYCMD% -m pip install fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms
+if %ERRORLEVEL% equ 0 goto :deps_verify
+
+echo [INFO] Retrying installation with --user flag...
+%PYCMD% -m pip install --user fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms
+
+:deps_verify
+%PYCMD% -c "import fastapi, sqladmin, sqlalchemy, uvicorn, greenlet, aiosqlite, wtforms" >nul 2>&1
+if %ERRORLEVEL% equ 0 goto :deps_ok
+
+echo.
+echo [ERROR] Failed to install dependencies automatically.
+echo Please verify your internet connection, or run manually in terminal:
+echo   %PYCMD% -m pip install fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms
+echo.
+goto :error_exit
+
+:deps_ok
+echo [OK] All required dependencies are verified.
+echo.
+
+rem Step 3: Initialize Database and Question Bank
 echo [2/3] Initializing Resonance Club Database and 100 Questions Pool...
 %PYCMD% -c "from seed_db import seed_database; seed_database()"
-if %ERRORLEVEL% neq 0 (
-    echo [ERROR] Database initialization failed!
-    pause
-    exit /b 1
-)
-echo [OK] Database initialized successfully.
+if %ERRORLEVEL% neq 0 goto :seed_fail
+echo [OK] Database is ready.
 echo.
+goto :start_app
 
-:: 4. Start Server and Open SQLAdmin in Default Browser
-echo [3/3] Starting FastAPI + SQLAdmin server on http://localhost:3000/admin ...
+:seed_fail
+echo.
+echo [ERROR] Database initialization failed.
+echo.
+goto :error_exit
+
+:start_app
+rem Step 4: Launch FastAPI + SQLAdmin Server
+echo [3/3] Starting FastAPI + SQLAdmin backend on http://localhost:3000/admin ...
+echo Opening browser...
 start "" "http://localhost:3000/admin"
 
 %PYCMD% app_admin.py --host 0.0.0.0 --port 3000
+if %ERRORLEVEL% neq 0 goto :app_fail
 
 echo.
-echo Server has stopped.
+echo Server stopped normally.
+goto :normal_exit
+
+:app_fail
+echo.
+echo [ERROR] Server exited with code %ERRORLEVEL%.
+goto :error_exit
+
+:error_exit
+echo.
+echo ====================================================================
+echo An error occurred. The window will stay open so you can read it.
+echo ====================================================================
 pause
+exit /b 1
+
+:normal_exit
+pause
+exit /b 0

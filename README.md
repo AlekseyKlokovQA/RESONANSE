@@ -97,7 +97,7 @@
 * **Личный кабинет резидента:** `http://localhost:3000/profile.html`
 
 ### Запуск:
-* **На Windows:** двойной клик по файлу **`START_SQLADMIN_WINDOWS.bat`**.
+* **На Windows:** двойной клик по файлу **`START_SQLADMIN_WINDOWS.bat`** (или правый клик по **`start_sqladmin.ps1`** -> «Выполнить с помощью PowerShell»).
 * **На Linux / macOS:** `./start_sqladmin.sh 3000`.
 * **Прямой запуск через Python:**
   ```bash
