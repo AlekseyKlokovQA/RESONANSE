@@ -1,21 +1,24 @@
 {% extends "sqladmin/layout.html" %}
 
 {% block content %}
-<div class="col-12">
-  <!-- Hero Section -->
-  <div class="dashboard-hero">
+<div class="dashboard-root w-100">
+
+  <!-- ====================================================================
+       1. HERO HEADER BANNER (Full width, generous margins)
+       ==================================================================== -->
+  <div class="dashboard-hero mb-4">
     <div class="row align-items-center">
       <div class="col-lg-8">
         <h1 class="dashboard-hero-title">ПУЛЬТ УПРАВЛЕНИЯ КЛУБОМ РЕЗОНАНС</h1>
-        <p class="dashboard-hero-desc">
-          Готовый фреймворк SQLAdmin с интеграцией в FastAPI. Таблицы, формы добавления, редактирования, валидации и фильтрации сгенерированы автоматически прямо из моделей базы данных SQLAlchemy.
+        <p class="dashboard-hero-desc mb-0">
+          Официальная панель Клубного Консьержа на базе FastAPI и SQLAdmin. Автоматическая генерация интерфейса, валидации и фильтрации прямо из моделей данных SQLAlchemy.
         </p>
       </div>
       <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-        <div class="d-inline-flex flex-column align-items-lg-end">
-          <div class="small text-muted text-uppercase" style="letter-spacing: 0.1em;">Следующий четверговый цикл</div>
-          <div class="h3 mb-2" style="color: #F3E5AB; font-family: 'Cormorant Garamond', serif;">Четверг, 19:00 МСК</div>
-          <a href="{{ url_for('admin:list', identity='weekly-match') }}" class="btn btn-primary btn-sm">
+        <div class="d-inline-flex flex-column align-items-lg-end bg-dark bg-opacity-50 p-3 rounded border border-warning border-opacity-25">
+          <div class="small text-muted text-uppercase" style="letter-spacing: 0.12em; font-size: 0.72rem;">Следующий четверговый спринт</div>
+          <div class="h3 mb-2" style="color: #F3E5AB; font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;">Четверг, 19:00 МСК</div>
+          <a href="{{ url_for('admin:list', identity='weekly-match') }}" class="btn btn-primary btn-sm px-3 py-1">
             <i class="fa fa-heart me-1"></i> Смотреть пары недели
           </a>
         </div>
@@ -23,100 +26,113 @@
     </div>
   </div>
 
-  <!-- KPI Grid -->
-  <div class="row g-3 mb-4">
-    <!-- Active Members -->
-    <div class="col-sm-6 col-lg-3">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-title">Резиденты Клуба</span>
-          <div class="kpi-icon"><i class="fa fa-crown"></i></div>
+  <!-- ====================================================================
+       2. KPI CARDS GRID (4 equal columns, 24px gap, no overflowing text)
+       ==================================================================== -->
+  <div class="row g-4 mb-4">
+    <!-- KPI 1: Active Verified Members -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="kpi-card h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="kpi-header">
+            <span class="kpi-title">Резиденты Клуба</span>
+            <div class="kpi-icon"><i class="fa fa-crown"></i></div>
+          </div>
+          <div class="kpi-value">5</div>
         </div>
-        <div class="kpi-value">5</div>
-        <div class="kpi-subtext text-success">
+        <div class="kpi-subtext text-success mt-2">
           <i class="fa fa-check-circle me-1"></i> 100% верифицированы по аудио
         </div>
       </div>
     </div>
 
-    <!-- Waitlist Parity -->
-    <div class="col-sm-6 col-lg-3">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-title">Паритет Очереди (50/50)</span>
-          <div class="kpi-icon"><i class="fa fa-scale-balanced"></i></div>
+    <!-- KPI 2: Waitlist Parity 50/50 -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="kpi-card h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="kpi-header">
+            <span class="kpi-title">Паритет Очереди (50/50)</span>
+            <div class="kpi-icon"><i class="fa fa-scale-balanced"></i></div>
+          </div>
+          <div class="kpi-value">4 <span style="font-size: 1.05rem; color: #9494A6; font-weight: 400;">кандидата</span></div>
         </div>
-        <div class="kpi-value">4 <span style="font-size: 1.1rem; color: #9494A6;">в очереди</span></div>
-        <div class="gender-bar-container">
+        <div class="gender-bar-container mt-2">
           <div class="gender-bar">
             <div class="gender-bar-male" style="width: 50%;"></div>
             <div class="gender-bar-female" style="width: 50%;"></div>
           </div>
-          <div class="gender-legend">
-            <span>2 Мужчины (50%)</span>
-            <span>2 Женщины (50%)</span>
+          <div class="gender-legend mt-1">
+            <span>2 М (50%)</span>
+            <span>2 Ж (50%)</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Audio Moderation Queue -->
-    <div class="col-sm-6 col-lg-3">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-title">Аудио на Модерации</span>
-          <div class="kpi-icon"><i class="fa fa-microphone-lines"></i></div>
+    <!-- KPI 3: Audio Moderation Queue -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="kpi-card h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="kpi-header">
+            <span class="kpi-title">Аудио на Модерации</span>
+            <div class="kpi-icon"><i class="fa fa-microphone-lines"></i></div>
+          </div>
+          <div class="kpi-value" style="color: #FBBF24;">4</div>
         </div>
-        <div class="kpi-value" style="color: #FBBF24;">4</div>
-        <div class="kpi-subtext" style="color: #FBBF24;">
-          <i class="fa fa-clock me-1"></i> Требуют подтверждения Консьержа
+        <div class="kpi-subtext mt-2" style="color: #FBBF24;">
+          <i class="fa fa-clock me-1"></i> Ожидают подтверждения
         </div>
       </div>
     </div>
 
-    <!-- Booked Dates & Revenue -->
-    <div class="col-sm-6 col-lg-3">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-title">Свидания & Выручка</span>
-          <div class="kpi-icon"><i class="fa fa-champagne-glasses"></i></div>
+    <!-- KPI 4: Date Bookings & Deposits -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="kpi-card h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="kpi-header">
+            <span class="kpi-title">Свидания & Выручка</span>
+            <div class="kpi-icon"><i class="fa fa-champagne-glasses"></i></div>
+          </div>
+          <div class="kpi-value" style="color: #34D399; font-size: 2.1rem;">39 450 ₽</div>
         </div>
-        <div class="kpi-value" style="color: #34D399;">39 450 ₽</div>
-        <div class="kpi-subtext text-muted">
-          1 свидание в ресторане «Белуга»
+        <div class="kpi-subtext text-muted mt-2">
+          <i class="fa fa-utensils me-1 text-warning"></i> 1 бронь в «Белуга»
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Audio Moderation Station -->
-  <div class="row g-3 mb-4">
-    <div class="col-lg-8">
+  <!-- ====================================================================
+       3. OPERATIONAL GRID: AUDIO MODERATION (8 cols) & MATCHES (4 cols)
+       ==================================================================== -->
+  <div class="row g-4 mb-4">
+    <!-- Left Column: Audio Moderation Table -->
+    <div class="col-12 col-xl-8">
       <div class="card h-100">
-        <div class="card-header d-flex align-items-center justify-content-between">
-          <h3 class="card-title">
+        <div class="card-header d-flex align-items-center justify-content-between py-3 px-4">
+          <h3 class="card-title d-flex align-items-center">
             <i class="fa fa-headphones text-warning me-2"></i> Очередь Модерации Аудио-Визиток
           </h3>
-          <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="btn btn-outline-warning btn-sm" style="font-size: 0.75rem;">
+          <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="btn btn-outline-warning btn-sm" style="font-size: 0.78rem;">
             Все визитки в SQLAdmin <i class="fa fa-arrow-right ms-1"></i>
           </a>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-vcenter">
+            <table class="table table-vcenter mb-0">
               <thead>
                 <tr>
-                  <th>Кандидат</th>
-                  <th>Город & Профессия</th>
-                  <th>Аудиовизитка</th>
-                  <th>Тон F0</th>
-                  <th>Действие</th>
+                  <th style="min-width: 160px;">Кандидат</th>
+                  <th style="min-width: 150px;">Город & Профессия</th>
+                  <th style="min-width: 220px;">Аудиовизитка</th>
+                  <th style="min-width: 90px;">Тон F0</th>
+                  <th style="min-width: 110px;" class="text-end">Действие</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>
-                    <strong>Максим Белов</strong>
+                    <div class="fw-bold text-white">Максим Белов</div>
                     <div class="small text-muted">34 года, Мужчина</div>
                   </td>
                   <td>
@@ -124,20 +140,22 @@
                     <div class="small text-muted">Основатель EdTech</div>
                   </td>
                   <td>
-                    <audio controls preload="none" style="height: 30px; width: 200px;">
-                      <source src="/alexander_voice.mp3" type="audio/mpeg">
-                    </audio>
+                    <div class="audio-table-cell">
+                      <audio controls preload="none" style="height: 32px; width: 210px;">
+                        <source src="/alexander_voice.mp3" type="audio/mpeg">
+                      </audio>
+                    </div>
                   </td>
                   <td><span class="badge-pitch">122 Гц</span></td>
-                  <td>
-                    <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="btn btn-outline-success btn-sm py-1 px-2" style="font-size: 0.72rem;">
-                      <i class="fa fa-check me-1"></i> Одобрить
+                  <td class="text-end">
+                    <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="btn btn-outline-success btn-sm py-1 px-2" style="font-size: 0.75rem;">
+                      <i class="fa fa-check me-1"></i> Принять
                     </a>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <strong>Дарья Григорьева</strong>
+                    <div class="fw-bold text-white">Дарья Григорьева</div>
                     <div class="small text-muted">28 лет, Женщина</div>
                   </td>
                   <td>
@@ -145,20 +163,22 @@
                     <div class="small text-muted">Архитектор садов</div>
                   </td>
                   <td>
-                    <audio controls preload="none" style="height: 30px; width: 200px;">
-                      <source src="/anna_voice.mp3" type="audio/mpeg">
-                    </audio>
+                    <div class="audio-table-cell">
+                      <audio controls preload="none" style="height: 32px; width: 210px;">
+                        <source src="/anna_voice.mp3" type="audio/mpeg">
+                      </audio>
+                    </div>
                   </td>
                   <td><span class="badge-pitch">215 Гц</span></td>
-                  <td>
-                    <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="btn btn-outline-success btn-sm py-1 px-2" style="font-size: 0.72rem;">
-                      <i class="fa fa-check me-1"></i> Одобрить
+                  <td class="text-end">
+                    <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="btn btn-outline-success btn-sm py-1 px-2" style="font-size: 0.75rem;">
+                      <i class="fa fa-check me-1"></i> Принять
                     </a>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <strong>Дмитрий Морозов</strong>
+                    <div class="fw-bold text-white">Дмитрий Морозов</div>
                     <div class="small text-muted">32 года, Мужчина</div>
                   </td>
                   <td>
@@ -166,14 +186,16 @@
                     <div class="small text-muted">Врач-нейрохирург</div>
                   </td>
                   <td>
-                    <audio controls preload="none" style="height: 30px; width: 200px;">
-                      <source src="/alexander_voice.mp3" type="audio/mpeg">
-                    </audio>
+                    <div class="audio-table-cell">
+                      <audio controls preload="none" style="height: 32px; width: 210px;">
+                        <source src="/alexander_voice.mp3" type="audio/mpeg">
+                      </audio>
+                    </div>
                   </td>
                   <td><span class="badge-pitch">115 Гц</span></td>
-                  <td>
-                    <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="btn btn-outline-success btn-sm py-1 px-2" style="font-size: 0.72rem;">
-                      <i class="fa fa-check me-1"></i> Одобрить
+                  <td class="text-end">
+                    <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="btn btn-outline-success btn-sm py-1 px-2" style="font-size: 0.75rem;">
+                      <i class="fa fa-check me-1"></i> Принять
                     </a>
                   </td>
                 </tr>
@@ -184,44 +206,44 @@
       </div>
     </div>
 
-    <!-- Active Weekly Matches Card -->
-    <div class="col-lg-4">
-      <div class="card h-100">
-        <div class="card-header d-flex align-items-center justify-content-between">
-          <h3 class="card-title">
-            <i class="fa fa-fire text-warning me-2"></i> Пары Недели
+    <!-- Right Column: Active Matches -->
+    <div class="col-12 col-xl-4">
+      <div class="card h-100 d-flex flex-column justify-content-between">
+        <div class="card-header d-flex align-items-center justify-content-between py-3 px-4">
+          <h3 class="card-title d-flex align-items-center">
+            <i class="fa fa-heart text-warning me-2"></i> Пары Недели
           </h3>
-          <a href="{{ url_for('admin:list', identity='weekly-match') }}" class="btn btn-outline-warning btn-sm" style="font-size: 0.75rem;">
+          <a href="{{ url_for('admin:list', identity='weekly-match') }}" class="btn btn-outline-warning btn-sm" style="font-size: 0.78rem;">
             Все <i class="fa fa-arrow-right ms-1"></i>
           </a>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4 d-flex flex-column gap-3">
           <!-- Match 1 -->
-          <div class="p-3 mb-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2);">
+          <div class="p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.25);">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="resonance-badge-gold">✦ 94% Созвучие</span>
               <span class="badge-status badge-booked">Свидание</span>
             </div>
-            <div class="fw-bold text-white mb-1">Александр В. ⨝ Анна С.</div>
+            <div class="fw-bold text-white mb-1" style="font-size: 1.05rem;">Александр В. ⨝ Анна С.</div>
             <div class="small text-muted mb-2">
-              <i class="fa fa-utensils me-1 text-warning"></i> Ресторан «Белуга» • Суббота 19:30
+              <i class="fa fa-utensils me-1 text-warning"></i> Ресторан «Белуга» • Сб, 19:30
             </div>
-            <div class="progress" style="height: 4px; background: rgba(255,255,255,0.1);">
+            <div class="progress" style="height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px;">
               <div class="progress-bar bg-warning" style="width: 94%;"></div>
             </div>
           </div>
 
           <!-- Match 2 -->
-          <div class="p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(167,139,250,0.2);">
+          <div class="p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(167,139,250,0.25);">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="resonance-badge-gold" style="border-color: #A78BFA; color: #DDD6FE;">✦ 91% Созвучие</span>
               <span class="badge-status badge-active-pulse">Окно 24ч</span>
             </div>
-            <div class="fw-bold text-white mb-1">Максим Б. ⨝ София М.</div>
+            <div class="fw-bold text-white mb-1" style="font-size: 1.05rem;">Максим Б. ⨝ София М.</div>
             <div class="small text-muted mb-2">
               <i class="fa fa-comments me-1 text-info"></i> Диалог открыт в приложении
             </div>
-            <div class="progress" style="height: 4px; background: rgba(255,255,255,0.1);">
+            <div class="progress" style="height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px;">
               <div class="progress-bar" style="width: 91%; background: #A78BFA;"></div>
             </div>
           </div>
@@ -230,89 +252,108 @@
     </div>
   </div>
 
-  <!-- Quick Model Navigation Grid -->
+  <!-- ====================================================================
+       4. DATABASE MODELS GRID (Full width card with 8 navigation buttons)
+       ==================================================================== -->
   <div class="card mb-4">
-    <div class="card-header">
-      <h3 class="card-title">
+    <div class="card-header py-3 px-4">
+      <h3 class="card-title d-flex align-items-center">
         <i class="fa fa-database text-warning me-2"></i> Модели Базы Данных (SQLAlchemy + SQLAdmin)
       </h3>
+      <div class="small text-muted mt-1">Автогенерированные таблицы со всеми операциями добавления, редактирования и поиска</div>
     </div>
-    <div class="card-body">
+    <div class="card-body p-4">
       <div class="row g-3">
-        <div class="col-md-3 col-sm-6">
-          <a href="{{ url_for('admin:list', identity='user') }}" class="btn btn-outline-secondary w-100 p-3 text-start d-flex align-items-center gap-3">
-            <i class="fa fa-users fa-2x text-warning"></i>
-            <div>
-              <div class="fw-bold text-white">Резиденты</div>
-              <div class="small text-muted">9 записей (CRUD)</div>
+        <!-- Model 1 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <a href="{{ url_for('admin:list', identity='user') }}" class="model-nav-box">
+            <div class="model-nav-icon"><i class="fa fa-users"></i></div>
+            <div class="model-nav-info">
+              <div class="model-nav-title">Резиденты</div>
+              <div class="model-nav-desc">9 записей (CRUD)</div>
             </div>
           </a>
         </div>
-        <div class="col-md-3 col-sm-6">
-          <a href="{{ url_for('admin:list', identity='profile') }}" class="btn btn-outline-secondary w-100 p-3 text-start d-flex align-items-center gap-3">
-            <i class="fa fa-id-badge fa-2x text-warning"></i>
-            <div>
-              <div class="fw-bold text-white">Профили</div>
-              <div class="small text-muted">Архетипы & Частоты</div>
+
+        <!-- Model 2 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <a href="{{ url_for('admin:list', identity='profile') }}" class="model-nav-box">
+            <div class="model-nav-icon"><i class="fa fa-id-badge"></i></div>
+            <div class="model-nav-info">
+              <div class="model-nav-title">Профили</div>
+              <div class="model-nav-desc">Архетипы & Частоты</div>
             </div>
           </a>
         </div>
-        <div class="col-md-3 col-sm-6">
-          <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="btn btn-outline-secondary w-100 p-3 text-start d-flex align-items-center gap-3">
-            <i class="fa fa-microphone-lines fa-2x text-warning"></i>
-            <div>
-              <div class="fw-bold text-white">Аудио-визитки</div>
-              <div class="small text-muted">Плеер & Модерация</div>
+
+        <!-- Model 3 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <a href="{{ url_for('admin:list', identity='voice-bio') }}" class="model-nav-box">
+            <div class="model-nav-icon"><i class="fa fa-microphone-lines"></i></div>
+            <div class="model-nav-info">
+              <div class="model-nav-title">Аудио-визитки</div>
+              <div class="model-nav-desc">Плеер & Модерация</div>
             </div>
           </a>
         </div>
-        <div class="col-md-3 col-sm-6">
-          <a href="{{ url_for('admin:list', identity='question') }}" class="btn btn-outline-secondary w-100 p-3 text-start d-flex align-items-center gap-3">
-            <i class="fa fa-clipboard-question fa-2x text-warning"></i>
-            <div>
-              <div class="fw-bold text-white">Банк 100 Вопросов</div>
-              <div class="small text-muted">10 категорий</div>
+
+        <!-- Model 4 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <a href="{{ url_for('admin:list', identity='question') }}" class="model-nav-box">
+            <div class="model-nav-icon"><i class="fa fa-clipboard-question"></i></div>
+            <div class="model-nav-info">
+              <div class="model-nav-title">Банк 100 Вопросов</div>
+              <div class="model-nav-desc">10 категорий жизни</div>
             </div>
           </a>
         </div>
-        <div class="col-md-3 col-sm-6">
-          <a href="{{ url_for('admin:list', identity='weekly-match') }}" class="btn btn-outline-secondary w-100 p-3 text-start d-flex align-items-center gap-3">
-            <i class="fa fa-heart fa-2x text-warning"></i>
-            <div>
-              <div class="fw-bold text-white">Матчи четверга</div>
-              <div class="small text-muted">Алгоритм созвучия</div>
+
+        <!-- Model 5 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <a href="{{ url_for('admin:list', identity='weekly-match') }}" class="model-nav-box">
+            <div class="model-nav-icon"><i class="fa fa-heart"></i></div>
+            <div class="model-nav-info">
+              <div class="model-nav-title">Матчи четверга</div>
+              <div class="model-nav-desc">Алгоритм созвучия</div>
             </div>
           </a>
         </div>
-        <div class="col-md-3 col-sm-6">
-          <a href="{{ url_for('admin:list', identity='venue') }}" class="btn btn-outline-secondary w-100 p-3 text-start d-flex align-items-center gap-3">
-            <i class="fa fa-utensils fa-2x text-warning"></i>
-            <div>
-              <div class="fw-bold text-white">Рестораны</div>
-              <div class="small text-muted">5 заведений Michelin</div>
+
+        <!-- Model 6 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <a href="{{ url_for('admin:list', identity='venue') }}" class="model-nav-box">
+            <div class="model-nav-icon"><i class="fa fa-utensils"></i></div>
+            <div class="model-nav-info">
+              <div class="model-nav-title">Рестораны</div>
+              <div class="model-nav-desc">5 заведений Michelin</div>
             </div>
           </a>
         </div>
-        <div class="col-md-3 col-sm-6">
-          <a href="{{ url_for('admin:list', identity='date-booking') }}" class="btn btn-outline-secondary w-100 p-3 text-start d-flex align-items-center gap-3">
-            <i class="fa fa-champagne-glasses fa-2x text-warning"></i>
-            <div>
-              <div class="fw-bold text-white">Бронирования</div>
-              <div class="small text-muted">Депозиты консьержа</div>
+
+        <!-- Model 7 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <a href="{{ url_for('admin:list', identity='date-booking') }}" class="model-nav-box">
+            <div class="model-nav-icon"><i class="fa fa-champagne-glasses"></i></div>
+            <div class="model-nav-info">
+              <div class="model-nav-title">Бронирования</div>
+              <div class="model-nav-desc">Депозиты консьержа</div>
             </div>
           </a>
         </div>
-        <div class="col-md-3 col-sm-6">
-          <a href="{{ url_for('admin:list', identity='subscription') }}" class="btn btn-outline-secondary w-100 p-3 text-start d-flex align-items-center gap-3">
-            <i class="fa fa-crown fa-2x text-warning"></i>
-            <div>
-              <div class="fw-bold text-white">Членские взносы</div>
-              <div class="small text-muted">Подписки & VIP</div>
+
+        <!-- Model 8 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <a href="{{ url_for('admin:list', identity='subscription') }}" class="model-nav-box">
+            <div class="model-nav-icon"><i class="fa fa-crown"></i></div>
+            <div class="model-nav-info">
+              <div class="model-nav-title">Членские взносы</div>
+              <div class="model-nav-desc">Подписки & VIP</div>
             </div>
           </a>
         </div>
       </div>
     </div>
   </div>
+
 </div>
 {% endblock %}

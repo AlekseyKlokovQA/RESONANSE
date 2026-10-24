@@ -580,3 +580,95 @@ table.table tbody td {
   margin-top: 4px;
   color: var(--res-text-muted);
 }
+
+/* ====================================================================
+   DASHBOARD ROOT & RESPONSIVE GRID OVERRIDES
+   ==================================================================== */
+.dashboard-root {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Ensure row-deck never forces horizontal squishing on full-width dashboard */
+.row-deck > .dashboard-root,
+.row-deck > .col-12 {
+  display: block !important;
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Ensure rows wrap properly and maintain Bootstrap 24px gutters */
+.dashboard-root .row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+}
+
+/* Model Navigation Boxes (4x2 Grid) */
+.model-nav-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: rgba(18, 18, 26, 0.7);
+  border: 1px solid var(--res-gold-border);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  height: 100%;
+}
+
+.model-nav-box:hover {
+  background: rgba(26, 26, 38, 0.95);
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.model-nav-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--res-gold);
+  font-size: 1.25rem;
+  transition: transform 0.25s ease;
+}
+
+.model-nav-box:hover .model-nav-icon {
+  transform: scale(1.1);
+  color: var(--res-gold-light);
+  border-color: var(--res-gold);
+}
+
+.model-nav-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.model-nav-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.model-nav-desc {
+  font-size: 0.75rem;
+  color: var(--res-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
