@@ -4,6 +4,7 @@ Compliant with 09_TECH_STACK_AND_DATABASE_SCHEMA.md
 Optimized for FastAPI + SQLAdmin auto-generation.
 """
 
+import hashlib
 from datetime import datetime
 from sqlalchemy import (
     Column, Integer, String, Text, Float, Boolean, DateTime, Date, ForeignKey
@@ -24,6 +25,9 @@ class User(Base):
     target_gender = Column(String(16), nullable=False, default="Женщина")  # Женщина, Мужчина, Любой
     goal = Column(String(64), nullable=False, default="Глубокие отношения")
     status = Column(String(32), nullable=False, default="waitlist")  # waitlist, verified_member, suspended, alumni
+    role = Column(String(32), nullable=False, default="resident")  # resident, candidate, concierge, superadmin
+    password_hash = Column(String(256), nullable=False, default="")
+    plain_password = Column(String(128), nullable=True)  # For demo inspection & concierge verification
     vip_pass_code = Column(String(32), nullable=False, unique=True, index=True)
     reputation_score = Column(Float, nullable=False, default=5.00)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
@@ -32,6 +36,15 @@ class User(Base):
     profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan", lazy="joined")
     voice_bio = relationship("VoiceBio", back_populates="user", uselist=False, cascade="all, delete-orphan", lazy="joined")
     subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete-orphan")
+
+    def set_password(self, password: str):
+        self.plain_password = password
+        self.password_hash = hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+    def check_password(self, password: str) -> bool:
+        if not self.password_hash:
+            return False
+        return self.password_hash == hashlib.sha256(password.encode("utf-8")).hexdigest()
 
     def __str__(self):
         return f"{self.full_name} ({self.vip_pass_code})"

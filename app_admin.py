@@ -60,6 +60,107 @@ async def root():
     return FileResponse(os.path.join(BASE_DIR, "index.html"))
 
 
+# ----------------------------------------------------------------------
+# AUTHENTICATION API FOR RESIDENTS (ALL ROLES EXCEPT SUPERADMIN)
+# ----------------------------------------------------------------------
+from pydantic import BaseModel
+from database import SyncSessionLocal
+from models import User, Profile
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+@app.post("/api/auth/login")
+def auth_login(req: LoginRequest):
+    email = req.email.strip().lower()
+    password = req.password.strip()
+
+    session = SyncSessionLocal()
+    try:
+        user = session.query(User).filter(User.email.ilike(email)).first()
+        if not user or not user.check_password(password):
+            return {
+                "success": False,
+                "error": "invalid_credentials",
+                "message": "Неверный адрес электронной почты или пароль резидента."
+            }
+
+        # Restriction: Superadmin cannot log in through the public landing page form
+        if user.role == "superadmin":
+            return {
+                "success": False,
+                "error": "superadmin_restricted",
+                "message": "Доступ для роли Superadmin осуществляется исключительно через защищенную панель /admin",
+                "admin_url": "/admin"
+            }
+
+        profile_data = {}
+        if user.profile:
+            profile_data = {
+                "age": user.profile.age,
+                "city": user.profile.city,
+                "occupation": user.profile.occupation,
+                "archetype": user.profile.archetype,
+                "bio": user.profile.bio,
+                "acoustic_frequency_hz": user.profile.acoustic_frequency_hz,
+                "photos_unlocked": user.profile.photos_unlocked
+            }
+
+        return {
+            "success": True,
+            "user": {
+                "id": user.id,
+                "full_name": user.full_name,
+                "email": user.email,
+                "phone": user.phone,
+                "gender": user.gender,
+                "role": user.role,
+                "status": user.status,
+                "vip_pass_code": user.vip_pass_code,
+                "reputation_score": user.reputation_score,
+                "profile": profile_data
+            }
+        }
+    finally:
+        session.close()
+
+
+@app.get("/api/auth/residents")
+def get_demo_residents():
+    session = SyncSessionLocal()
+    try:
+        # All roles EXCEPT superadmin
+        residents = (
+            session.query(User)
+            .filter(User.role != "superadmin")
+            .order_by(User.id.asc())
+            .all()
+        )
+        result = []
+        for u in residents:
+            p = u.profile
+            result.append({
+                "id": u.id,
+                "full_name": u.full_name,
+                "email": u.email,
+                "password": u.plain_password or "Resonance2026!",
+                "role": u.role,
+                "status": u.status,
+                "vip_pass_code": u.vip_pass_code,
+                "gender": u.gender,
+                "age": p.age if p else 28,
+                "city": p.city if p else "Москва",
+                "occupation": p.occupation if p else "Резидент клуба",
+                "archetype": p.archetype if p else "Искатель"
+            })
+        return result
+    finally:
+        session.close()
+
+
 @app.api_route("/index.html", methods=["GET", "HEAD"])
 async def index_page():
     return FileResponse(os.path.join(BASE_DIR, "index.html"))

@@ -1102,6 +1102,426 @@
       line-height: 1.3;
     }
 
+    /* ==========================================================================
+       LOGIN MODAL & RESIDENT CARDS (ROLE: RESIDENTS & CANDIDATES)
+       ========================================================================== */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(5, 5, 8, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .login-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .login-modal-dialog {
+      background: linear-gradient(145deg, rgba(20, 22, 32, 0.96) 0%, rgba(10, 11, 16, 0.98) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 680px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 36px 32px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 35px rgba(212, 175, 55, 0.15);
+      position: relative;
+      transform: scale(0.94) translateY(20px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .login-overlay.active .login-modal-dialog {
+      transform: scale(1) translateY(0);
+    }
+
+    .login-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      line-height: 1;
+    }
+
+    .login-close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #FFFFFF;
+      transform: rotate(90deg);
+    }
+
+    .login-emblem {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(167, 139, 250, 0.15) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+    }
+
+    .login-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .role-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      background: rgba(167, 139, 250, 0.12);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      color: #DDD6FE;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 0 auto 20px;
+    }
+
+    .login-alert {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      line-height: 1.4;
+    }
+
+    .login-alert.error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #FCA5A5;
+    }
+
+    .login-alert.warning {
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      color: #FDE68A;
+    }
+
+    .login-input-group {
+      margin-bottom: 18px;
+    }
+
+    .login-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold-primary);
+      margin-bottom: 6px;
+    }
+
+    .login-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .login-input-wrap .input-icon {
+      position: absolute;
+      left: 14px;
+      color: var(--text-subtle);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .login-input {
+      width: 100%;
+      height: 48px;
+      padding: 0 44px 0 44px;
+      background: rgba(14, 16, 24, 0.85);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: 12px;
+      color: #FFFFFF;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .login-input:focus {
+      border-color: var(--gold-deep);
+      background: rgba(18, 20, 30, 0.95);
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.25);
+    }
+
+    .pwd-eye-btn {
+      position: absolute;
+      right: 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .pwd-eye-btn:hover {
+      color: var(--gold-primary);
+    }
+
+    .quick-residents-section {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .quick-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .quick-badge-count {
+      font-size: 11px;
+      color: var(--text-subtle);
+    }
+
+    .quick-residents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+      max-height: 240px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .resident-card-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .resident-card-btn:hover, .resident-card-btn.selected {
+      background: rgba(212, 175, 55, 0.12);
+      border-color: var(--gold-deep);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+    }
+
+    .resident-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .resident-card-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #FFFFFF;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .resident-card-role {
+      font-size: 9px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .role-res {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .role-wait {
+      background: rgba(245, 158, 11, 0.18);
+      color: #FBBF24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .resident-card-email {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .resident-card-pwd {
+      font-size: 10px;
+      color: var(--gold-primary);
+      font-family: monospace;
+    }
+
+    /* ==========================================================================
+       RESIDENTS CARDS SHOWCASE (MAIN PAGE SECTION)
+       ========================================================================== */
+    .residents-section {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .residents-grid-showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+    }
+
+    .resident-showcase-card {
+      background: rgba(18, 20, 29, 0.75);
+      border: 1px solid rgba(212, 175, 55, 0.22);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .resident-showcase-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold-primary);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 24px rgba(212, 175, 55, 0.18);
+    }
+
+    .showcase-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .showcase-avatar-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(167, 139, 250, 0.2) 100%);
+      border: 1.5px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--gold-light);
+      font-size: 15px;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+    }
+
+    .showcase-user-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .showcase-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .showcase-creds-box {
+      background: rgba(10, 11, 16, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin: 14px 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .showcase-cred-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .showcase-cred-label {
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .showcase-cred-val {
+      color: var(--gold-light);
+      font-family: monospace;
+      font-size: 12px;
+      user-select: all;
+    }
+
+    .superadmin-exclusion-banner {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(212, 175, 55, 0.04) 100%);
+      border: 1px dashed rgba(245, 158, 11, 0.4);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-top: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
   </style>
 </head>
 <body>
@@ -1135,14 +1555,15 @@
         <li><a href="#demo">Как это устроено</a></li>
         <li><a href="#calculator">Калькулятор созвучия</a></li>
         <li><a href="#comparison">Сравнение</a></li>
+        <li><a href="#residents">Резиденты</a></li>
         <li><a href="#faq">FAQ</a></li>
       </ul>
 
       <div style="display: flex; align-items: center; gap: 10px;">
-        <a href="profile.html" class="btn btn-ghost" style="padding: 9px 18px; font-size: 13px;">
+        <button type="button" onclick="openLoginModal()" class="btn btn-ghost" id="navLoginBtn" style="padding: 9px 18px; font-size: 13px;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span>Войти</span>
-        </a>
+        </button>
         <a href="#join" class="btn btn-gold" style="padding: 10px 20px; font-size: 13px;">Подать анкету</a>
       </div>
     </div>
@@ -1482,6 +1903,347 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       RESIDENTS CARDS SHOWCASE (EXCEPT SUPERADMIN)
+       ========================================== -->
+  <section class="residents-section" id="residents">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Сообщество созвучия</span>
+        <h2 class="section-title">Карточки резидентов клуба</h2>
+        <p class="section-desc">
+          Действующие резиденты и кандидаты закрытого сообщества «Резонанс». Для быстрого ознакомления с личным кабинетом каждого профиля используйте указанные Email и Пароль.
+        </p>
+      </div>
+
+      <div class="residents-grid-showcase">
+        <!-- 1. Alexander Volkov -->
+        <div class="resident-showcase-card">
+          <div>
+            <div class="showcase-header">
+              <div class="showcase-avatar-circle">АВ</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3 class="showcase-user-name">Александр Волков, 31</h3>
+                  <span class="resident-card-role role-res">Резидент</span>
+                </div>
+                <div class="showcase-sub">Архитектор системного ПО • Москва</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <span class="status-pill-gold">432 Гц</span>
+              <span style="color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px;">Мудрец / Архитектор</span>
+            </div>
+            <!-- Credentials Box -->
+            <div class="showcase-creds-box">
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Email:</span>
+                <span class="showcase-cred-val">alexander.volkov@resonance.club</span>
+              </div>
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Пароль:</span>
+                <span class="showcase-cred-val">Resonance2026!</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm w-100" style="width: 100%; border-radius: 8px; padding: 10px;" onclick="loginWithQuickCard('alexander.volkov@resonance.club', 'Resonance2026!')">
+            <span>Войти в кабинет Александра →</span>
+          </button>
+        </div>
+
+        <!-- 2. Anna Sokolova -->
+        <div class="resident-showcase-card">
+          <div>
+            <div class="showcase-header">
+              <div class="showcase-avatar-circle" style="border-color: #F472B6; background: linear-gradient(135deg, rgba(244,114,182,0.2) 0%, rgba(212,175,55,0.2) 100%);">АС</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3 class="showcase-user-name">Анна Соколова, 28</h3>
+                  <span class="resident-card-role role-res">Резидент</span>
+                </div>
+                <div class="showcase-sub">Арт-директор бюро • Москва</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <span class="status-pill-gold">528 Гц</span>
+              <span style="color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px;">Творец / Эстет</span>
+            </div>
+            <!-- Credentials Box -->
+            <div class="showcase-creds-box">
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Email:</span>
+                <span class="showcase-cred-val">anna.sokolova@resonance.club</span>
+              </div>
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Пароль:</span>
+                <span class="showcase-cred-val">Resonance2026!</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm w-100" style="width: 100%; border-radius: 8px; padding: 10px;" onclick="loginWithQuickCard('anna.sokolova@resonance.club', 'Resonance2026!')">
+            <span>Войти в кабинет Анны →</span>
+          </button>
+        </div>
+
+        <!-- 3. Sofia Melnikova -->
+        <div class="resident-showcase-card">
+          <div>
+            <div class="showcase-header">
+              <div class="showcase-avatar-circle" style="border-color: #A78BFA; background: linear-gradient(135deg, rgba(167,139,250,0.2) 0%, rgba(212,175,55,0.2) 100%);">СМ</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3 class="showcase-user-name">София Мельникова, 26</h3>
+                  <span class="resident-card-role role-res">Резидент</span>
+                </div>
+                <div class="showcase-sub">Биохимик • Санкт-Петербург</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <span class="status-pill-gold">432 Гц</span>
+              <span style="color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px;">Исследователь</span>
+            </div>
+            <!-- Credentials Box -->
+            <div class="showcase-creds-box">
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Email:</span>
+                <span class="showcase-cred-val">sofia.m@resonance.club</span>
+              </div>
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Пароль:</span>
+                <span class="showcase-cred-val">Resonance2026!</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm w-100" style="width: 100%; border-radius: 8px; padding: 10px;" onclick="loginWithQuickCard('sofia.m@resonance.club', 'Resonance2026!')">
+            <span>Войти в кабинет Софии →</span>
+          </button>
+        </div>
+
+        <!-- 4. Polina Reyn -->
+        <div class="resident-showcase-card">
+          <div>
+            <div class="showcase-header">
+              <div class="showcase-avatar-circle" style="border-color: #60A5FA; background: linear-gradient(135deg, rgba(96,165,250,0.2) 0%, rgba(212,175,55,0.2) 100%);">ПР</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3 class="showcase-user-name">Полина Рейн, 27</h3>
+                  <span class="resident-card-role role-res">Резидент</span>
+                </div>
+                <div class="showcase-sub">Куратор выставок • Москва</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <span class="status-pill-gold">639 Гц</span>
+              <span style="color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px;">Искатель гармонии</span>
+            </div>
+            <!-- Credentials Box -->
+            <div class="showcase-creds-box">
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Email:</span>
+                <span class="showcase-cred-val">polina.reyn@resonance.club</span>
+              </div>
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Пароль:</span>
+                <span class="showcase-cred-val">Resonance2026!</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm w-100" style="width: 100%; border-radius: 8px; padding: 10px;" onclick="loginWithQuickCard('polina.reyn@resonance.club', 'Resonance2026!')">
+            <span>Войти в кабинет Полины →</span>
+          </button>
+        </div>
+
+        <!-- 5. Elena Romanova -->
+        <div class="resident-showcase-card">
+          <div>
+            <div class="showcase-header">
+              <div class="showcase-avatar-circle" style="border-color: #34D399; background: linear-gradient(135deg, rgba(52,211,153,0.2) 0%, rgba(212,175,55,0.2) 100%);">ЕР</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3 class="showcase-user-name">Елена Романова, 32</h3>
+                  <span class="resident-card-role role-res">Резидент</span>
+                </div>
+                <div class="showcase-sub">Психотерапевт • Москва</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <span class="status-pill-gold">528 Гц</span>
+              <span style="color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px;">Эмпат / Хранитель</span>
+            </div>
+            <!-- Credentials Box -->
+            <div class="showcase-creds-box">
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Email:</span>
+                <span class="showcase-cred-val">elena.romanova@resonance.club</span>
+              </div>
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Пароль:</span>
+                <span class="showcase-cred-val">Resonance2026!</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm w-100" style="width: 100%; border-radius: 8px; padding: 10px;" onclick="loginWithQuickCard('elena.romanova@resonance.club', 'Resonance2026!')">
+            <span>Войти в кабинет Елены →</span>
+          </button>
+        </div>
+
+        <!-- 6. Maxim Belov (Waitlist Candidate) -->
+        <div class="resident-showcase-card">
+          <div>
+            <div class="showcase-header">
+              <div class="showcase-avatar-circle" style="border-color: #FBBF24; background: linear-gradient(135deg, rgba(251,191,36,0.2) 0%, rgba(212,175,55,0.2) 100%);">МБ</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3 class="showcase-user-name">Максим Белов, 34</h3>
+                  <span class="resident-card-role role-wait">Лист ожидания</span>
+                </div>
+                <div class="showcase-sub">Основатель EdTech • Москва</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <span class="status-pill-gold">432 Гц</span>
+              <span style="color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px;">Предприниматель</span>
+            </div>
+            <!-- Credentials Box -->
+            <div class="showcase-creds-box">
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Email:</span>
+                <span class="showcase-cred-val">maxim.belov@resonance.club</span>
+              </div>
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Пароль:</span>
+                <span class="showcase-cred-val">Resonance2026!</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm w-100" style="width: 100%; border-radius: 8px; padding: 10px;" onclick="loginWithQuickCard('maxim.belov@resonance.club', 'Resonance2026!')">
+            <span>Войти в кабинет Максима →</span>
+          </button>
+        </div>
+
+        <!-- 7. Daria Grigorieva (Waitlist Candidate) -->
+        <div class="resident-showcase-card">
+          <div>
+            <div class="showcase-header">
+              <div class="showcase-avatar-circle" style="border-color: #34D399; background: linear-gradient(135deg, rgba(52,211,153,0.2) 0%, rgba(212,175,55,0.2) 100%);">ДГ</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3 class="showcase-user-name">Дарья Григорьева, 28</h3>
+                  <span class="resident-card-role role-wait">Лист ожидания</span>
+                </div>
+                <div class="showcase-sub">Архитектор садов • Москва</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <span class="status-pill-gold">528 Гц</span>
+              <span style="color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px;">Ландшафтный эстет</span>
+            </div>
+            <!-- Credentials Box -->
+            <div class="showcase-creds-box">
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Email:</span>
+                <span class="showcase-cred-val">daria.g@resonance.club</span>
+              </div>
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Пароль:</span>
+                <span class="showcase-cred-val">Resonance2026!</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm w-100" style="width: 100%; border-radius: 8px; padding: 10px;" onclick="loginWithQuickCard('daria.g@resonance.club', 'Resonance2026!')">
+            <span>Войти в кабинет Дарьи →</span>
+          </button>
+        </div>
+
+        <!-- 8. Dmitry Morozov (Waitlist Candidate) -->
+        <div class="resident-showcase-card">
+          <div>
+            <div class="showcase-header">
+              <div class="showcase-avatar-circle" style="border-color: #60A5FA; background: linear-gradient(135deg, rgba(96,165,250,0.2) 0%, rgba(212,175,55,0.2) 100%);">ДМ</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3 class="showcase-user-name">Дмитрий Морозов, 32</h3>
+                  <span class="resident-card-role role-wait">Лист ожидания</span>
+                </div>
+                <div class="showcase-sub">Нейрохирург • Санкт-Петербург</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <span class="status-pill-gold">432 Гц</span>
+              <span style="color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px;">Интеллектуал / Врач</span>
+            </div>
+            <!-- Credentials Box -->
+            <div class="showcase-creds-box">
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Email:</span>
+                <span class="showcase-cred-val">dmitry.m@resonance.club</span>
+              </div>
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Пароль:</span>
+                <span class="showcase-cred-val">Resonance2026!</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm w-100" style="width: 100%; border-radius: 8px; padding: 10px;" onclick="loginWithQuickCard('dmitry.m@resonance.club', 'Resonance2026!')">
+            <span>Войти в кабинет Дмитрия →</span>
+          </button>
+        </div>
+
+        <!-- 9. Ekaterina Voronina (Waitlist Candidate) -->
+        <div class="resident-showcase-card">
+          <div>
+            <div class="showcase-header">
+              <div class="showcase-avatar-circle" style="border-color: #E879F9; background: linear-gradient(135deg, rgba(232,121,249,0.2) 0%, rgba(212,175,55,0.2) 100%);">ЕВ</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3 class="showcase-user-name">Екатерина Воронина, 29</h3>
+                  <span class="resident-card-role role-wait">Лист ожидания</span>
+                </div>
+                <div class="showcase-sub">Продюсер кино • Москва</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <span class="status-pill-gold">639 Гц</span>
+              <span style="color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px;">Режиссер / Медиа</span>
+            </div>
+            <!-- Credentials Box -->
+            <div class="showcase-creds-box">
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Email:</span>
+                <span class="showcase-cred-val">ekaterina.v@resonance.club</span>
+              </div>
+              <div class="showcase-cred-row">
+                <span class="showcase-cred-label">Пароль:</span>
+                <span class="showcase-cred-val">Resonance2026!</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm w-100" style="width: 100%; border-radius: 8px; padding: 10px;" onclick="loginWithQuickCard('ekaterina.v@resonance.club', 'Resonance2026!')">
+            <span>Войти в кабинет Екатерины →</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Superadmin Restriction Notice Banner -->
+      <div class="superadmin-exclusion-banner">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(212, 175, 55, 0.15); border: 1px solid var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+            🛡️
+          </div>
+          <div>
+            <div style="font-weight: 700; color: #FFFFFF; font-size: 14px;">Ограничение роли Superadmin (Консьерж-сервис клуба)</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px; max-width: 720px; line-height: 1.5;">
+              Профиль суперадмина (<span style="color:var(--gold-light);">superadmin@resonance.club</span>) исключен из каталога резидентов и не имеет персональной романтической анкеты. Вход суперадмина осуществляется строго через защищенный пульт администрирования.
+            </div>
+          </div>
+        </div>
+        <a href="/admin" class="btn btn-ghost btn-sm" style="border-color: rgba(212, 175, 55, 0.4); color: var(--gold-light); white-space: nowrap; text-decoration: none;">
+          Панель консьержа /admin →
+        </a>
       </div>
     </div>
   </section>
@@ -2137,6 +2899,339 @@
     function closeSuccessOverlay() {
       document.getElementById('successOverlay').classList.remove('active');
     }
+
+    /* ====================================================================
+       LOGIN MODAL CONTROLLER (ALL ROLES EXCEPT SUPERADMIN)
+       ==================================================================== */
+    const RESIDENT_DEMO_ACCOUNTS = [
+      { name: "Александр Волков", email: "alexander.volkov@resonance.club", pwd: "Resonance2026!", role: "resident", roleLabel: "Резидент", occupation: "Архитектор систем • Москва", age: 31 },
+      { name: "Анна Соколова", email: "anna.sokolova@resonance.club", pwd: "Resonance2026!", role: "resident", roleLabel: "Резидент", occupation: "Арт-директор бюро • Москва", age: 28 },
+      { name: "София Мельникова", email: "sofia.m@resonance.club", pwd: "Resonance2026!", role: "resident", roleLabel: "Резидент", occupation: "Биохимик • СПб", age: 26 },
+      { name: "Полина Рейн", email: "polina.reyn@resonance.club", pwd: "Resonance2026!", role: "resident", roleLabel: "Резидент", occupation: "Куратор выставок • Москва", age: 27 },
+      { name: "Елена Романова", email: "elena.romanova@resonance.club", pwd: "Resonance2026!", role: "resident", roleLabel: "Резидент", occupation: "Психотерапевт • Москва", age: 32 },
+      { name: "Максим Белов", email: "maxim.belov@resonance.club", pwd: "Resonance2026!", role: "candidate", roleLabel: "Лист ожидания", occupation: "Основатель EdTech • Москва", age: 34 },
+      { name: "Дарья Григорьева", email: "daria.g@resonance.club", pwd: "Resonance2026!", role: "candidate", roleLabel: "Лист ожидания", occupation: "Архитектор садов • Москва", age: 28 },
+      { name: "Дмитрий Морозов", email: "dmitry.m@resonance.club", pwd: "Resonance2026!", role: "candidate", roleLabel: "Лист ожидания", occupation: "Нейрохирург • СПб", age: 32 },
+      { name: "Екатерина Воронина", email: "ekaterina.v@resonance.club", pwd: "Resonance2026!", role: "candidate", roleLabel: "Лист ожидания", occupation: "Продюсер кино • Москва", age: 29 }
+    ];
+
+    async function renderResidentCards() {
+      const grid = document.getElementById('quickResidentsGrid');
+      if (!grid) return;
+
+      const populate = (items) => {
+        grid.innerHTML = items.map((r) => {
+          const roleLabel = r.role === 'resident' ? 'Резидент' : 'Лист ожидания';
+          const occ = r.occupation || (r.city ? `${r.city}` : 'Резидент');
+          const pwd = r.pwd || r.password || 'Resonance2026!';
+          const name = r.name || r.full_name;
+          return `
+            <div class="resident-card-btn" onclick="selectResidentCard('${r.email}', '${pwd}', this)" title="Кликните для быстрого входа">
+              <div class="resident-card-top">
+                <span class="resident-card-name">${name}</span>
+                <span class="resident-card-role ${r.role === 'resident' ? 'role-res' : 'role-wait'}">${roleLabel}</span>
+              </div>
+              <div class="resident-card-email">${r.email}</div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                <span class="resident-card-pwd">${pwd}</span>
+                <span style="font-size: 9px; color: var(--text-subtle);">${occ.split('•')[0].trim()}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      };
+
+      if (grid.children.length === 0) {
+        populate(RESIDENT_DEMO_ACCOUNTS);
+      }
+
+      try {
+        const res = await fetch('/api/auth/residents');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            populate(data);
+          }
+        }
+      } catch (e) {}
+    }
+
+    function openLoginModal() {
+      const overlay = document.getElementById('loginOverlay');
+      if (!overlay) return;
+      overlay.classList.add('active');
+      renderResidentCards();
+      setTimeout(() => {
+        const emailInput = document.getElementById('loginEmail');
+        if (emailInput && !emailInput.value) emailInput.focus();
+      }, 100);
+    }
+
+    function loginWithQuickCard(email, password) {
+      openLoginModal();
+      const emailInput = document.getElementById('loginEmail');
+      const pwdInput = document.getElementById('loginPassword');
+      if (emailInput) emailInput.value = email;
+      if (pwdInput) pwdInput.value = password;
+      submitResidentLogin(email, password);
+    }
+
+    function closeLoginModal() {
+      const overlay = document.getElementById('loginOverlay');
+      if (overlay) overlay.classList.remove('active');
+    }
+
+    function onLoginBackdropClick(e) {
+      if (e.target.id === 'loginOverlay') {
+        closeLoginModal();
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById('loginPassword');
+      const eyeIcon = document.getElementById('pwdEyeIcon');
+      if (!pwdInput) return;
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        pwdInput.type = 'password';
+        eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+
+    function selectResidentCard(email, password, cardEl) {
+      document.querySelectorAll('.resident-card-btn').forEach(c => c.classList.remove('selected'));
+      if (cardEl) cardEl.classList.add('selected');
+
+      const emailInput = document.getElementById('loginEmail');
+      const pwdInput = document.getElementById('loginPassword');
+      if (emailInput) emailInput.value = email;
+      if (pwdInput) pwdInput.value = password;
+
+      // Submit immediately
+      submitResidentLogin(email, password);
+    }
+
+    async function handleResidentLogin(e) {
+      if (e) e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      await submitResidentLogin(email, password);
+    }
+
+    async function submitResidentLogin(email, password) {
+      const alertBox = document.getElementById('loginAlertBox');
+      const submitBtn = document.getElementById('loginSubmitBtn');
+      if (alertBox) {
+        alertBox.className = 'login-alert d-none';
+        alertBox.innerHTML = '';
+      }
+
+      if (!email || !password) {
+        if (alertBox) {
+          alertBox.className = 'login-alert error';
+          alertBox.textContent = 'Пожалуйста, укажите email и пароль.';
+        }
+        return;
+      }
+
+      // Check if user is trying to log in as superadmin
+      if (email.toLowerCase().includes('superadmin') || email.toLowerCase().includes('admin@resonance')) {
+        if (alertBox) {
+          alertBox.className = 'login-alert warning';
+          alertBox.innerHTML = `
+            <div>
+              <strong>⚠️ Доступ ограничен</strong><br>
+              Роль <strong>Superadmin</strong> предназначена исключительно для Консьержа и управления системой через защищенный пульт.
+              <div style="margin-top: 8px;">
+                <a href="/admin" class="btn btn-gold btn-sm py-1 px-3" style="font-size: 11px; text-decoration: none;">
+                  Перейти в панель управления /admin →
+                </a>
+              </div>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Проверка созвучия...</span>';
+      }
+
+      try {
+        // 1. Try real backend API
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.user) {
+          onLoginSuccess(data.user);
+          return;
+        } else if (data.error === 'superadmin_restricted') {
+          if (alertBox) {
+            alertBox.className = 'login-alert warning';
+            alertBox.innerHTML = `
+              <div>
+                <strong>⚠️ Доступ ограничен</strong><br>
+                ${data.message}
+                <div style="margin-top: 8px;">
+                  <a href="/admin" class="btn btn-gold btn-sm py-1 px-3" style="font-size: 11px; text-decoration: none;">
+                    Перейти в панель управления /admin →
+                  </a>
+                </div>
+              </div>
+            `;
+          }
+        } else {
+          if (alertBox) {
+            alertBox.className = 'login-alert error';
+            alertBox.textContent = data.message || 'Неверный адрес электронной почты или пароль.';
+          }
+        }
+      } catch (err) {
+        // Offline / static file fallback
+        const resident = RESIDENT_DEMO_ACCOUNTS.find(r => r.email.toLowerCase() === email.toLowerCase());
+        if (resident && password === resident.pwd) {
+          const fallbackUser = {
+            id: 1,
+            full_name: resident.name,
+            email: resident.email,
+            role: resident.role,
+            status: resident.role === 'resident' ? 'verified_member' : 'waitlist',
+            vip_pass_code: `RES-${Math.floor(1000 + Math.random() * 9000)}-VIP`,
+            reputation_score: 5.0,
+            profile: {
+              age: resident.age,
+              city: "Москва",
+              occupation: resident.occupation,
+              archetype: "Мудрец • Архитектор"
+            }
+          };
+          onLoginSuccess(fallbackUser);
+          return;
+        } else {
+          if (alertBox) {
+            alertBox.className = 'login-alert error';
+            alertBox.textContent = 'Неверный email или пароль резидента.';
+          }
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Войти в кабинет</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+        }
+      }
+    }
+
+    function onLoginSuccess(user) {
+      try {
+        localStorage.setItem('resonance_auth_user', JSON.stringify(user));
+      } catch(e) {}
+
+      const submitBtn = document.getElementById('loginSubmitBtn');
+      if (submitBtn) {
+        submitBtn.innerHTML = '<span>✓ Успешный вход! Переход...</span>';
+        submitBtn.style.background = '#10B981';
+        submitBtn.style.color = '#FFFFFF';
+      }
+
+      setTimeout(() => {
+        window.location.href = 'profile.html';
+      }, 400);
+    }
   </script>
+
+  <!-- ====================================================================
+       RESONANCE RESIDENT LOGIN MODAL (ALL ROLES EXCEPT SUPERADMIN)
+       ==================================================================== -->
+  <div id="loginOverlay" class="login-overlay" onclick="onLoginBackdropClick(event)">
+    <div class="login-modal-dialog">
+      <!-- Close Button -->
+      <button type="button" class="login-close-btn" onclick="closeLoginModal()" title="Закрыть">&times;</button>
+      
+      <!-- Modal Header -->
+      <div class="login-header text-center">
+        <div class="login-emblem">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0" stroke="url(#modalGold)" stroke-linecap="round"/>
+            <path d="M4 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0" stroke="#A78BFA" stroke-linecap="round" stroke-dasharray="1 2"/>
+            <defs>
+              <linearGradient id="modalGold" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#E5C378"/>
+                <stop offset="100%" stop-color="#D4AF37"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h2 class="login-title">ВХОД В ЛИЧНЫЙ КАБИНЕТ</h2>
+        <p class="login-subtitle">Авторизация для резидентов и кандидатов клуба «РЕЗОНАНС»</p>
+        <div style="text-align: center; margin-bottom: 18px;">
+          <span class="role-badge-pill">Доступ для всех ролей кроме Superadmin</span>
+        </div>
+      </div>
+
+      <!-- Alert Box for Error / Superadmin messages -->
+      <div id="loginAlertBox" class="login-alert d-none"></div>
+
+      <!-- Login Form -->
+      <form id="residentLoginForm" onsubmit="handleResidentLogin(event)" class="login-form">
+        <div class="login-input-group">
+          <label for="loginEmail" class="login-label">Электронная почта резидента</label>
+          <div class="login-input-wrap">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </span>
+            <input type="email" id="loginEmail" class="login-input" placeholder="alexander.volkov@resonance.club" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="login-input-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label for="loginPassword" class="login-label" style="margin-bottom: 0;">Пароль</label>
+            <span style="font-size: 11px; color: var(--gold-primary);">Демо: Resonance2026!</span>
+          </div>
+          <div class="login-input-wrap">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input type="password" id="loginPassword" class="login-input" placeholder="••••••••••••" required autocomplete="current-password">
+            <button type="button" class="pwd-eye-btn" onclick="togglePasswordVisibility()" title="Показать/скрыть пароль">
+              <svg id="pwdEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 12px;">
+          <label style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); cursor: pointer;">
+            <input type="checkbox" id="rememberMe" checked style="accent-color: var(--gold-deep);">
+            <span>Запомнить сессию</span>
+          </label>
+          <a href="#join" onclick="closeLoginModal()" style="color: var(--gold-primary); text-decoration: none;">Еще не в клубе?</a>
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="btn btn-gold w-100" style="width: 100%; padding: 14px; font-size: 15px; border-radius: 12px;">
+          <span>Войти в кабинет</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </form>
+
+      <!-- Quick Resident Demo Cards Section -->
+      <div class="quick-residents-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span class="quick-title">Карточки резидентов (вход в 1 клик):</span>
+          <span class="quick-badge-count">9 резидентов (без суперадмина)</span>
+        </div>
+        <div class="quick-residents-grid" id="quickResidentsGrid">
+          <!-- Populated via renderResidentCards() -->
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

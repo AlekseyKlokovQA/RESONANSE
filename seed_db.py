@@ -13,12 +13,16 @@ from models import (
 )
 
 
-def seed_database():
+def seed_database(force: bool = False):
+    if force:
+        from database import sync_engine
+        from models import Base
+        Base.metadata.drop_all(bind=sync_engine)
     init_db()
     session = SyncSessionLocal()
 
     # Check if database is already seeded
-    if session.query(User).count() > 0:
+    if not force and session.query(User).count() > 0:
         print("Database already contains data, skipping seed.")
         session.close()
         return
@@ -179,10 +183,12 @@ def seed_database():
             target_gender=c["target_gender"],
             goal=c["goal"],
             status=c["status"],
+            role=c.get("role", "resident"),
             vip_pass_code=c["vip_pass_code"],
             reputation_score=c["reputation_score"],
             created_at=now - timedelta(days=15)
         )
+        user.set_password(c.get("password", "Resonance2026!"))
         session.add(user)
         session.flush()
         saved_users[c["full_name"]] = user
@@ -316,10 +322,12 @@ def seed_database():
             target_gender=w["target_gender"],
             goal=w["goal"],
             status=w["status"],
+            role=w.get("role", "candidate"),
             vip_pass_code=w["vip_pass_code"],
             reputation_score=w["reputation_score"],
             created_at=now - timedelta(hours=8)
         )
+        user.set_password(w.get("password", "Resonance2026!"))
         session.add(user)
         session.flush()
         saved_users[w["full_name"]] = user
@@ -346,6 +354,37 @@ def seed_database():
             verified_at=None
         )
         session.add(voice)
+
+    # Superadmin user (Architect & Concierge Controller)
+    admin_user = User(
+        full_name="Артемий Громов",
+        phone="+7 (999) 000-00-01",
+        email="superadmin@resonance.club",
+        gender="Мужчина",
+        target_gender="Женщина",
+        goal="Архитектура и управление клубом",
+        status="verified_member",
+        role="superadmin",
+        vip_pass_code="RES-0001-ADMIN",
+        reputation_score=5.0,
+        created_at=now - timedelta(days=90)
+    )
+    admin_user.set_password("SuperAdmin2026!")
+    session.add(admin_user)
+    session.flush()
+    saved_users[admin_user.full_name] = admin_user
+
+    admin_profile = Profile(
+        user_id=admin_user.id,
+        age=38,
+        city="Москва",
+        occupation="Главный Консьерж & Архитектор платформы",
+        bio="Управление клубным сообществом и контроль качества созвучия.",
+        archetype="Правитель • Мудрец",
+        acoustic_frequency_hz=432,
+        photos_unlocked=True
+    )
+    session.add(admin_profile)
 
     print("Seeding partner fine dining venues...")
     venues = [

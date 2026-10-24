@@ -1564,6 +1564,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           <span>Сохранить профиль</span>
         </button>
+        <button class="btn btn-ghost btn-sm" onclick="logoutResident()" title="Выйти из аккаунта резидента" style="border-color: rgba(239, 68, 68, 0.4); color: #FCA5A5;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Выйти</span>
+        </button>
       </div>
     </div>
   </header>
@@ -3666,7 +3670,58 @@
     // Initialize friends on page load
     document.addEventListener('DOMContentLoaded', () => {
       renderFriendsSection();
+      loadAuthenticatedResident();
     });
+
+    /* ====================================================================
+       AUTHENTICATION SYNC & LOGOUT (BRANCH 1.0.3_Login)
+       ==================================================================== */
+    function loadAuthenticatedResident() {
+      try {
+        const raw = localStorage.getItem('resonance_auth_user');
+        if (!raw) return;
+        const user = JSON.parse(raw);
+        if (!user || !user.full_name) return;
+
+        // Populate fields
+        const nameInput = document.getElementById('inputName');
+        const ageInput = document.getElementById('inputAge');
+        const jobInput = document.getElementById('inputJob');
+        const cityInput = document.getElementById('inputDistrict');
+
+        if (nameInput) nameInput.value = user.full_name;
+        if (ageInput && user.profile && user.profile.age) ageInput.value = user.profile.age;
+        if (jobInput && user.profile && user.profile.occupation) jobInput.value = user.profile.occupation;
+        if (cityInput && user.profile && user.profile.city) cityInput.value = user.profile.city;
+
+        // Sync to sidebar
+        updateSideInfo();
+
+        // Update header status badge
+        const badge = document.querySelector('.header-status-badge');
+        if (badge) {
+          if (user.role === 'resident') {
+            badge.innerHTML = `<span class="pulse-green"></span> Верифицированный резидент: <strong>${user.full_name}</strong>`;
+          } else if (user.role === 'candidate') {
+            badge.innerHTML = `<span class="pulse-green" style="background:#F59E0B; box-shadow:0 0 10px rgba(245,158,11,0.6);"></span> Кандидат в листе ожидания: <strong>${user.full_name}</strong>`;
+          }
+        }
+
+        // Show welcome toast
+        if (typeof showToast === 'function') {
+          showToast(`Добро пожаловать в кабинет, ${user.full_name}!`);
+        }
+      } catch (e) {
+        console.error('Error loading auth resident:', e);
+      }
+    }
+
+    function logoutResident() {
+      try {
+        localStorage.removeItem('resonance_auth_user');
+      } catch(e) {}
+      window.location.href = 'index.html';
+    }
 
   </script>
   <!-- ==========================================

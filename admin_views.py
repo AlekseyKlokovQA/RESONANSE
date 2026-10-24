@@ -20,22 +20,28 @@ class UserAdmin(ModelView, model=User):
     column_list = [
         User.id,
         User.full_name,
-        User.gender,
+        User.role,
         User.status,
+        User.email,
+        User.gender,
         User.vip_pass_code,
         User.phone,
-        User.goal,
         User.reputation_score,
         User.created_at
     ]
 
-    column_searchable_list = [User.full_name, User.phone, User.email, User.vip_pass_code]
-    column_sortable_list = [User.id, User.full_name, User.reputation_score, User.created_at]
-    column_filters = [AllUniqueStringValuesFilter(User.gender), AllUniqueStringValuesFilter(User.status)]
+    column_searchable_list = [User.full_name, User.phone, User.email, User.vip_pass_code, User.role]
+    column_sortable_list = [User.id, User.full_name, User.role, User.reputation_score, User.created_at]
+    column_filters = [
+        AllUniqueStringValuesFilter(User.role),
+        AllUniqueStringValuesFilter(User.gender),
+        AllUniqueStringValuesFilter(User.status)
+    ]
 
     column_labels = {
         User.id: "ID",
         User.full_name: "ФИО Резидента",
+        User.role: "Роль в системе",
         User.gender: "Пол",
         User.target_gender: "Кого ищет",
         User.goal: "Цель вступления",
@@ -43,11 +49,21 @@ class UserAdmin(ModelView, model=User):
         User.vip_pass_code: "VIP-код пропуска",
         User.phone: "Телефон",
         User.email: "Электронная почта",
+        User.plain_password: "Демо-пароль",
         User.reputation_score: "Рейтинг",
         User.created_at: "Дата заявки"
     }
 
     column_formatters = {
+        User.role: lambda m, a: Markup(
+            '<span class="badge bg-warning text-dark fw-bold px-2 py-1">👑 Superadmin</span>'
+            if m.role == "superadmin"
+            else '<span class="badge bg-purple text-white px-2 py-1" style="background:#8B5CF6!important">💎 Резидент</span>'
+            if m.role == "resident"
+            else '<span class="badge bg-info text-white px-2 py-1">⏳ Кандидат</span>'
+            if m.role == "candidate"
+            else f'<span class="badge bg-secondary">{m.role}</span>'
+        ),
         User.status: lambda m, a: Markup(
             '<span class="badge-status badge-verified">✓ Верифицирован (VIP)</span>'
             if m.status == "verified_member"
