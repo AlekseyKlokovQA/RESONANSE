@@ -21,6 +21,9 @@
   --res-success: #10B981;
   --res-danger: #EF4444;
 
+  /* Dynamic Sidebar Width */
+  --sidebar-width: 320px;
+
   /* Tabler Overrides */
   --tblr-body-bg: var(--res-bg-darkest) !important;
   --tblr-body-color: var(--res-text-main) !important;
@@ -53,14 +56,117 @@ h1, h2, h3, h4, .page-title, .navbar-brand {
 
 /* Sidebar Branding & Navigation */
 aside.navbar-vertical {
+  width: var(--sidebar-width, 320px) !important;
+  min-width: 250px !important;
+  max-width: 620px !important;
+  position: fixed !important;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1030;
   background: linear-gradient(180deg, #0A0A0E 0%, #060608 100%) !important;
   border-right: 1px solid var(--res-gold-border) !important;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6) !important;
+  transition: width 0.08s ease-out;
+  overflow: visible !important;
+}
+
+aside.navbar-vertical .container-fluid {
+  width: 100% !important;
+  height: 100% !important;
+  padding-left: 0.95rem !important;
+  padding-right: 0.95rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.page-wrapper {
+  margin-left: var(--sidebar-width, 320px) !important;
+  transition: margin-left 0.08s ease-out;
+  min-width: 0;
+}
+
+/* Resizer handle on the right edge of sidebar */
+.sidebar-resizer {
+  position: absolute;
+  top: 0;
+  right: -5px;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 1050;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.sidebar-resizer:hover,
+.sidebar-resizer.is-resizing {
+  background: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.85);
+}
+
+.resizer-handle-pill {
+  width: 4px;
+  height: 40px;
+  border-radius: 2px;
+  background: rgba(212, 175, 55, 0.4);
+  transition: all 0.2s ease;
+}
+
+.sidebar-resizer:hover .resizer-handle-pill,
+.sidebar-resizer.is-resizing .resizer-handle-pill {
+  height: 64px;
+  width: 4px;
+  background: var(--res-gold-light);
+  box-shadow: 0 0 10px #F3E5AB;
+}
+
+body.sidebar-resizing {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+body.sidebar-resizing aside.navbar-vertical,
+body.sidebar-resizing .page-wrapper {
+  transition: none !important;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--res-gold-light);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  padding: 0;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle-btn:hover {
+  background: var(--res-gold);
+  color: #0A0A0E;
+  border-color: var(--res-gold);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  transform: scale(1.05);
 }
 
 aside.navbar-vertical .navbar-brand {
-  padding: 1.5rem 1rem !important;
+  padding: 1.25rem 0.5rem !important;
   border-bottom: 1px solid rgba(212, 175, 55, 0.12) !important;
+  width: 100% !important;
 }
 
 .brand-wrapper {
@@ -102,12 +208,58 @@ aside.navbar-vertical .navbar-brand {
 }
 
 /* Nav Menu Items */
+.navbar-vertical .navbar-nav {
+  width: 100% !important;
+}
+
 .navbar-vertical .navbar-nav .nav-link {
   color: var(--res-text-muted) !important;
-  padding: 0.75rem 1.15rem !important;
+  padding: 0.65rem 0.85rem !important;
   border-radius: 8px !important;
-  margin: 3px 8px !important;
-  font-size: 0.85rem !important;
+  margin: 3px 0 !important;
+  font-size: 0.86rem !important;
+  font-weight: 500 !important;
+  transition: all 0.25s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  line-height: 1.35 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.navbar-vertical .nav-link-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  line-height: 1.35 !important;
+}
+
+.navbar-vertical .dropdown-menu {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.navbar-vertical .dropdown-menu-columns,
+.navbar-vertical .dropdown-menu-column {
+  width: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.navbar-vertical .dropdown-menu .nav-link {
+  padding-left: 1.85rem !important;
+}
   font-weight: 500 !important;
   transition: all 0.25s ease !important;
 }

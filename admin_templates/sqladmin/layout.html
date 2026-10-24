@@ -8,24 +8,43 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <!-- Resonance Admin Custom Theme -->
 <link rel="stylesheet" href="/static/css/resonance_admin.css">
+
+<!-- Instant Sidebar Width Restoration from localStorage (Prevents Layout Shift) -->
+<script>
+  (function() {
+    try {
+      var savedWidth = localStorage.getItem('resonance_sidebar_width');
+      if (savedWidth) {
+        var w = parseInt(savedWidth, 10);
+        if (w >= 240 && w <= 650) {
+          document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+        }
+      }
+    } catch(e) {}
+  })();
+</script>
 {% endblock %}
 
 {% block body %}
 <div class="wrapper">
-  <!-- Resonance Obsidian Luxury Sidebar -->
-  <aside class="navbar navbar-expand-lg navbar-vertical navbar-expand-md navbar-dark" data-bs-theme="dark">
-    <div class="container-fluid">
-      <div class="navbar-brand">
-        <a href="{{ url_for('admin:index') }}" class="brand-wrapper">
+  <!-- Resonance Obsidian Luxury Dynamic Sidebar (Expandable / Resizable) -->
+  <aside class="navbar navbar-expand-lg navbar-vertical navbar-expand-md navbar-dark" data-bs-theme="dark" id="resonance-sidebar">
+    <div class="container-fluid" id="resonance-sidebar-inner">
+      <div class="navbar-brand d-flex align-items-center justify-content-between w-100">
+        <a href="{{ url_for('admin:index') }}" class="brand-wrapper text-decoration-none">
           <img src="/logo.svg" alt="Resonance Logo" class="brand-logo-img">
           <div class="brand-text-block">
             <span class="brand-title">РЕЗОНАНС</span>
             <span class="brand-subtitle">Клубный Консьерж</span>
           </div>
         </a>
+        <!-- Expand / Shrink Quick Toggle Button -->
+        <button type="button" id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="Развернуть шире / вернуть обратно (или потяните за правый край)" aria-label="Toggle sidebar width">
+          <i class="fa fa-arrows-left-right" id="sidebar-toggle-icon"></i>
+        </button>
       </div>
 
-      <nav class="navbar navbar-expand-sm shadow-none" id="navbar-menu"
+      <nav class="navbar navbar-expand-sm shadow-none w-100" id="navbar-menu"
         data-sqladmin-menu="{{ admin.base_url }}">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,12 +56,20 @@
       </nav>
 
       <!-- Sidebar Footer -->
-      <div class="d-none d-md-block p-3 mt-auto border-top border-secondary border-opacity-25 text-center">
-        <div class="small text-muted mb-2">FastAPI + SQLAdmin v1.0.2</div>
+      <div class="d-none d-md-block p-3 mt-auto border-top border-secondary border-opacity-25 text-center w-100">
+        <div class="d-flex align-items-center justify-content-between mb-2 px-1">
+          <span class="small text-muted" style="font-size: 0.72rem;">Ширина: <span id="sidebar-width-display">320px</span></span>
+          <button type="button" id="sidebar-reset-btn" class="btn btn-link btn-sm p-0 text-muted" style="font-size: 0.7rem;" title="Сбросить ширину на 320px">Сброс</button>
+        </div>
         <a href="/" target="_blank" class="btn btn-outline-warning btn-sm w-100 py-1" style="font-size: 0.75rem; border-color: rgba(212,175,55,0.4); color: #F3E5AB;">
           <i class="fa fa-external-link-alt me-1"></i> Витрина Клуба
         </a>
       </div>
+    </div>
+
+    <!-- Drag Resizer Handle (Hover to see gold glow, drag left/right to resize) -->
+    <div id="sidebar-resizer" class="sidebar-resizer" title="Потяните мышью вправо или влево для изменения ширины сайдбара (двойной клик — быстрое переключение)">
+      <div class="resizer-handle-pill"></div>
     </div>
   </aside>
 
@@ -98,4 +125,141 @@
     </div>
   </div>
 </div>
+
+<!-- ====================================================================
+     DYNAMIC RESIZABLE SIDEBAR CONTROLLER SCRIPT
+     ==================================================================== -->
+<script>
+  (function() {
+    var STORAGE_KEY = 'resonance_sidebar_width';
+    var MIN_WIDTH = 250;
+    var MAX_WIDTH = 620;
+    var DEFAULT_WIDTH = 320;
+    var EXPANDED_WIDTH = 420;
+
+    function applyWidth(w, save) {
+      w = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, w));
+      document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+      
+      var aside = document.getElementById('resonance-sidebar');
+      if (aside) {
+        aside.style.width = w + 'px';
+      }
+      var pageWrapper = document.querySelector('.page-wrapper');
+      if (pageWrapper) {
+        pageWrapper.style.marginLeft = w + 'px';
+      }
+      var display = document.getElementById('sidebar-width-display');
+      if (display) {
+        display.textContent = w + 'px';
+      }
+      if (save) {
+        try {
+          localStorage.setItem(STORAGE_KEY, w);
+        } catch(e) {}
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var aside = document.getElementById('resonance-sidebar');
+      var resizer = document.getElementById('sidebar-resizer');
+      var toggleBtn = document.getElementById('sidebar-toggle-btn');
+      var resetBtn = document.getElementById('sidebar-reset-btn');
+      var display = document.getElementById('sidebar-width-display');
+
+      if (!aside || !resizer) return;
+
+      var currentStored = parseInt(localStorage.getItem(STORAGE_KEY), 10) || DEFAULT_WIDTH;
+      applyWidth(currentStored, false);
+
+      var isDragging = false;
+      var startX = 0;
+      var startWidth = DEFAULT_WIDTH;
+
+      // Mouse drag handlers
+      resizer.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        isDragging = true;
+        startX = e.clientX;
+        startWidth = aside.getBoundingClientRect().width;
+        resizer.classList.add('is-resizing');
+        document.body.classList.add('sidebar-resizing');
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+
+      function onMouseMove(e) {
+        if (!isDragging) return;
+        var delta = e.clientX - startX;
+        var newWidth = startWidth + delta;
+        applyWidth(newWidth, false);
+      }
+
+      function onMouseUp(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        resizer.classList.remove('is-resizing');
+        document.body.classList.remove('sidebar-resizing');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        var finalW = Math.round(aside.getBoundingClientRect().width);
+        applyWidth(finalW, true);
+      }
+
+      // Touch drag handlers for mobile / tablet
+      resizer.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          startX = e.touches[0].clientX;
+          startWidth = aside.getBoundingClientRect().width;
+          resizer.classList.add('is-resizing');
+          document.body.classList.add('sidebar-resizing');
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchmove', function(e) {
+        if (!isDragging || e.touches.length !== 1) return;
+        var delta = e.touches[0].clientX - startX;
+        applyWidth(startWidth + delta, false);
+      }, { passive: true });
+
+      document.addEventListener('touchend', function() {
+        if (!isDragging) return;
+        isDragging = false;
+        resizer.classList.remove('is-resizing');
+        document.body.classList.remove('sidebar-resizing');
+        var finalW = Math.round(aside.getBoundingClientRect().width);
+        applyWidth(finalW, true);
+      });
+
+      // Quick toggle button click
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          var currentW = Math.round(aside.getBoundingClientRect().width);
+          var targetW = currentW >= 380 ? DEFAULT_WIDTH : EXPANDED_WIDTH;
+          applyWidth(targetW, true);
+        });
+      }
+
+      // Double click on resizer handle to toggle
+      resizer.addEventListener('dblclick', function(e) {
+        e.preventDefault();
+        var currentW = Math.round(aside.getBoundingClientRect().width);
+        var targetW = currentW >= 380 ? DEFAULT_WIDTH : EXPANDED_WIDTH;
+        applyWidth(targetW, true);
+      });
+
+      // Reset button click
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          applyWidth(DEFAULT_WIDTH, true);
+        });
+      }
+    });
+  })();
+</script>
 {% endblock %}
