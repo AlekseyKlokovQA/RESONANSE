@@ -138,7 +138,15 @@ def main():
     print(f"  👤 Кабинет Резидента: http://localhost:{args.port}/profile.html")
     print("=" * 70)
 
-    uvicorn.run("app_admin:app", host=args.host, port=args.port, reload=False)
+    try:
+        uvicorn.run("app_admin:app", host=args.host, port=args.port, reload=False)
+    except OSError as e:
+        alt_port = 8000 if args.port != 8000 else 8080
+        print(f"\n[WARNING] Port {args.port} is already in use or unavailable: {e}")
+        print(f"[INFO] Switching to fallback port {alt_port}...")
+        print(f"  🌐 Витрина Клуба: http://localhost:{alt_port}/")
+        print(f"  💎 SQLAdmin Панель Консьержа: http://localhost:{alt_port}/admin\n")
+        uvicorn.run("app_admin:app", host=args.host, port=alt_port, reload=False)
 
 
 if __name__ == "__main__":
