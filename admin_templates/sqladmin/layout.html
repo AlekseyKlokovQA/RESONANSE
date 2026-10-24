@@ -30,7 +30,7 @@
   <!-- Resonance Obsidian Luxury Dynamic Sidebar (Expandable / Resizable) -->
   <aside class="navbar navbar-expand-lg navbar-vertical navbar-expand-md navbar-dark" data-bs-theme="dark" id="resonance-sidebar">
     <div class="container-fluid" id="resonance-sidebar-inner">
-      <div class="navbar-brand d-flex align-items-center justify-content-between w-100">
+      <div class="navbar-brand d-flex align-items-center w-100">
         <a href="{{ url_for('admin:index') }}" class="brand-wrapper text-decoration-none">
           <img src="/logo.svg" alt="Resonance Logo" class="brand-logo-img">
           <div class="brand-text-block">
@@ -38,10 +38,6 @@
             <span class="brand-subtitle">Клубный Консьерж</span>
           </div>
         </a>
-        <!-- Expand / Shrink Quick Toggle Button -->
-        <button type="button" id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="Развернуть шире / вернуть обратно (или потяните за правый край)" aria-label="Toggle sidebar width">
-          <i class="fa fa-arrows-left-right" id="sidebar-toggle-icon"></i>
-        </button>
       </div>
 
       <nav class="navbar navbar-expand-sm shadow-none w-100" id="navbar-menu"
@@ -163,7 +159,6 @@
     document.addEventListener('DOMContentLoaded', function() {
       var aside = document.getElementById('resonance-sidebar');
       var resizer = document.getElementById('sidebar-resizer');
-      var toggleBtn = document.getElementById('sidebar-toggle-btn');
       var resetBtn = document.getElementById('sidebar-reset-btn');
       var display = document.getElementById('sidebar-width-display');
 
@@ -233,16 +228,6 @@
         var finalW = Math.round(aside.getBoundingClientRect().width);
         applyWidth(finalW, true);
       });
-
-      // Quick toggle button click
-      if (toggleBtn) {
-        toggleBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          var currentW = Math.round(aside.getBoundingClientRect().width);
-          var targetW = currentW >= 380 ? DEFAULT_WIDTH : EXPANDED_WIDTH;
-          applyWidth(targetW, true);
-        });
-      }
 
       // Double click on resizer handle to toggle
       resizer.addEventListener('dblclick', function(e) {
