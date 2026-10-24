@@ -6,10 +6,15 @@ Automatically generates full CRUD tables and forms from SQLAlchemy models.
 import os
 import sys
 import argparse
+import hmac
+import hashlib
+import base64
+import json
+import time
 import uvicorn
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqladmin import Admin
 from sqladmin.forms import ModelConverter, converts
@@ -67,6 +72,70 @@ from pydantic import BaseModel
 from database import SyncSessionLocal
 from models import User, Profile
 
+AUTH_SECRET_KEY = "resonance_auth_secret_token_vault_key_2026"
+
+
+def create_access_token(user_id: int, email: str, role: str, expires_in: int = 86400 * 7) -> str:
+    """Creates a cryptographically signed HMAC-SHA256 bearer session token."""
+    payload = {
+        "sub": user_id,
+        "email": email,
+        "role": role,
+        "exp": int(time.time()) + expires_in,
+        "iat": int(time.time()),
+    }
+    payload_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+    sig = hmac.new(AUTH_SECRET_KEY.encode(), payload_b64.encode(), hashlib.sha256).hexdigest()
+    return f"{payload_b64}.{sig}"
+
+
+def verify_access_token(token: str) -> dict | None:
+    """Verifies HMAC signature, integrity, and expiration of the bearer token."""
+    try:
+        parts = token.split(".")
+        if len(parts) != 2:
+            return None
+        payload_b64, sig = parts
+        expected_sig = hmac.new(AUTH_SECRET_KEY.encode(), payload_b64.encode(), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(sig, expected_sig):
+            return None
+        rem = len(payload_b64) % 4
+        if rem > 0:
+            payload_b64 += "=" * (4 - rem)
+        payload = json.loads(base64.urlsafe_b64decode(payload_b64.encode()).decode())
+        if payload.get("exp", 0) < time.time():
+            return None
+        return payload
+    except Exception:
+        return None
+
+
+def serialize_user(user: User) -> dict:
+    profile_data = {}
+    if user.profile:
+        profile_data = {
+            "age": user.profile.age,
+            "city": user.profile.city,
+            "occupation": user.profile.occupation,
+            "archetype": user.profile.archetype,
+            "bio": user.profile.bio,
+            "acoustic_frequency_hz": user.profile.acoustic_frequency_hz,
+            "photos_unlocked": user.profile.photos_unlocked
+        }
+
+    return {
+        "id": user.id,
+        "full_name": user.full_name,
+        "email": user.email,
+        "phone": user.phone,
+        "gender": user.gender,
+        "role": user.role,
+        "status": user.status,
+        "vip_pass_code": user.vip_pass_code,
+        "reputation_score": user.reputation_score,
+        "profile": profile_data
+    }
+
 
 class LoginRequest(BaseModel):
     email: str
@@ -74,22 +143,49 @@ class LoginRequest(BaseModel):
 
 
 @app.post("/api/auth/login")
-def auth_login(req: LoginRequest):
+def auth_login(req: LoginRequest, response: Response):
+    """
+    Step 5-8: Authenticate user by email & password.
+    - Checks user existence in Database
+    - Verifies PBKDF2 password hash
+    - Restricts Superadmin to /admin
+    - Issues signed bearer session token and sets secure session cookie
+    """
     email = req.email.strip().lower()
     password = req.password.strip()
 
+    if not email or not password:
+        response.status_code = 400
+        return {
+            "success": False,
+            "error": "empty_fields",
+            "message": "Пожалуйста, укажите email и пароль."
+        }
+
     session = SyncSessionLocal()
     try:
+        # Step 6: Backend checks presence of user in database by email
         user = session.query(User).filter(User.email.ilike(email)).first()
-        if not user or not user.check_password(password):
+        if not user:
+            response.status_code = 404
             return {
                 "success": False,
-                "error": "invalid_credentials",
-                "message": "Неверный адрес электронной почты или пароль резидента."
+                "error": "user_not_found",
+                "message": "Пользователь с указанным email не зарегистрирован в клубе."
+            }
+
+        # Step 7: Backend checks password correctness
+        if not user.check_password(password):
+            response.status_code = 401
+            return {
+                "success": False,
+                "error": "invalid_password",
+                "message": "Неверный пароль. Пожалуйста, проверьте правильность ввода."
             }
 
         # Restriction: Superadmin cannot log in through the public landing page form
         if user.role == "superadmin":
+            response.status_code = 403
             return {
                 "success": False,
                 "error": "superadmin_restricted",
@@ -97,35 +193,72 @@ def auth_login(req: LoginRequest):
                 "admin_url": "/admin"
             }
 
-        profile_data = {}
-        if user.profile:
-            profile_data = {
-                "age": user.profile.age,
-                "city": user.profile.city,
-                "occupation": user.profile.occupation,
-                "archetype": user.profile.archetype,
-                "bio": user.profile.bio,
-                "acoustic_frequency_hz": user.profile.acoustic_frequency_hz,
-                "photos_unlocked": user.profile.photos_unlocked
-            }
+        # Step 8: Server creates session and issues authorization token
+        token = create_access_token(user.id, user.email, user.role)
+        response.set_cookie(
+            key="resonance_session",
+            value=token,
+            httponly=True,
+            samesite="lax",
+            max_age=86400 * 7
+        )
 
+        user_data = serialize_user(user)
+
+        # Step 9: Returns token and authorized user data
         return {
             "success": True,
-            "user": {
-                "id": user.id,
-                "full_name": user.full_name,
-                "email": user.email,
-                "phone": user.phone,
-                "gender": user.gender,
-                "role": user.role,
-                "status": user.status,
-                "vip_pass_code": user.vip_pass_code,
-                "reputation_score": user.reputation_score,
-                "profile": profile_data
-            }
+            "token_type": "Bearer",
+            "access_token": token,
+            "expires_in": 86400 * 7,
+            "user": user_data
         }
     finally:
         session.close()
+
+
+@app.get("/api/auth/me")
+def auth_me(request: Request, response: Response):
+    """
+    Verifies the user's active session token against the database
+    via Authorization Bearer header or resonance_session cookie.
+    """
+    token = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    elif "resonance_session" in request.cookies:
+        token = request.cookies.get("resonance_session")
+
+    if not token:
+        response.status_code = 401
+        return {"authenticated": False, "message": "Токен авторизации отсутствует"}
+
+    payload = verify_access_token(token)
+    if not payload:
+        response.status_code = 401
+        return {"authenticated": False, "message": "Токен авторизации недействителен или истек"}
+
+    session = SyncSessionLocal()
+    try:
+        user = session.query(User).filter(User.id == payload["sub"]).first()
+        if not user:
+            response.status_code = 404
+            return {"authenticated": False, "message": "Пользователь не найден в базе данных"}
+
+        return {
+            "authenticated": True,
+            "user": serialize_user(user)
+        }
+    finally:
+        session.close()
+
+
+@app.post("/api/auth/logout")
+def auth_logout(response: Response):
+    """Clears the session cookie on backend."""
+    response.delete_cookie("resonance_session")
+    return {"success": True, "message": "Сессия успешно завершена"}
 
 
 @app.get("/api/auth/residents")

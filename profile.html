@@ -3675,51 +3675,92 @@
 
     /* ====================================================================
        AUTHENTICATION SYNC & LOGOUT (BRANCH 1.0.3_Login)
+       Frontend <-> Backend <-> Database Token Verification
        ==================================================================== */
-    function loadAuthenticatedResident() {
+    async function loadAuthenticatedResident() {
+      // 1. Instant UI paint from local cache to prevent layout shift
+      const raw = localStorage.getItem('resonance_auth_user');
+      let cachedUser = null;
+      if (raw) {
+        try {
+          cachedUser = JSON.parse(raw);
+          if (cachedUser) applyUserDataToUI(cachedUser, false);
+        } catch (e) {}
+      }
+
+      // 2. Validate session & token with Backend Database (/api/auth/me)
+      const token = localStorage.getItem('resonance_token');
       try {
-        const raw = localStorage.getItem('resonance_auth_user');
-        if (!raw) return;
-        const user = JSON.parse(raw);
-        if (!user || !user.full_name) return;
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        // Populate fields
-        const nameInput = document.getElementById('inputName');
-        const ageInput = document.getElementById('inputAge');
-        const jobInput = document.getElementById('inputJob');
-        const cityInput = document.getElementById('inputDistrict');
-
-        if (nameInput) nameInput.value = user.full_name;
-        if (ageInput && user.profile && user.profile.age) ageInput.value = user.profile.age;
-        if (jobInput && user.profile && user.profile.occupation) jobInput.value = user.profile.occupation;
-        if (cityInput && user.profile && user.profile.city) cityInput.value = user.profile.city;
-
-        // Sync to sidebar
-        updateSideInfo();
-
-        // Update header status badge
-        const badge = document.querySelector('.header-status-badge');
-        if (badge) {
-          if (user.role === 'resident') {
-            badge.innerHTML = `<span class="pulse-green"></span> Верифицированный резидент: <strong>${user.full_name}</strong>`;
-          } else if (user.role === 'candidate') {
-            badge.innerHTML = `<span class="pulse-green" style="background:#F59E0B; box-shadow:0 0 10px rgba(245,158,11,0.6);"></span> Кандидат в листе ожидания: <strong>${user.full_name}</strong>`;
+        const res = await fetch('/api/auth/me', { headers });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated && data.user) {
+            localStorage.setItem('resonance_auth_user', JSON.stringify(data.user));
+            applyUserDataToUI(data.user, true);
           }
         }
-
-        // Show welcome toast
-        if (typeof showToast === 'function') {
-          showToast(`Добро пожаловать в кабинет, ${user.full_name}!`);
+      } catch (err) {
+        // Offline / static preview fallback
+        if (cachedUser) {
+          applyUserDataToUI(cachedUser, true);
         }
-      } catch (e) {
-        console.error('Error loading auth resident:', e);
       }
     }
 
-    function logoutResident() {
+    function applyUserDataToUI(user, showGreeting) {
+      if (!user || !user.full_name) return;
+
+      // Populate input fields
+      const nameInput = document.getElementById('inputName');
+      const ageInput = document.getElementById('inputAge');
+      const jobInput = document.getElementById('inputJob');
+      const cityInput = document.getElementById('inputDistrict');
+
+      if (nameInput) nameInput.value = user.full_name;
+      if (ageInput && user.profile && user.profile.age) ageInput.value = user.profile.age;
+      if (jobInput && user.profile && user.profile.occupation) jobInput.value = user.profile.occupation;
+      if (cityInput && user.profile && user.profile.city) cityInput.value = user.profile.city;
+
+      // Live Sync to sidebar
+      if (typeof updateSideInfo === 'function') {
+        updateSideInfo();
+      }
+
+      // Update VIP code
+      const vipElem = document.getElementById('userVipCode');
+      if (vipElem && user.vip_pass_code) {
+        vipElem.textContent = user.vip_pass_code;
+      }
+
+      // Update header status badge
+      const badge = document.querySelector('.header-status-badge');
+      if (badge) {
+        if (user.role === 'resident') {
+          badge.innerHTML = `<span class="pulse-green"></span> Верифицированный резидент: <strong>${user.full_name}</strong>`;
+        } else if (user.role === 'candidate') {
+          badge.innerHTML = `<span class="pulse-green" style="background:#F59E0B; box-shadow:0 0 10px rgba(245,158,11,0.6);"></span> Кандидат в листе ожидания: <strong>${user.full_name}</strong>`;
+        }
+      }
+
+      // Optional welcome toast
+      if (showGreeting && typeof showToast === 'function') {
+        showToast(`Добро пожаловать в кабинет, ${user.full_name}!`);
+      }
+    }
+
+    async function logoutResident() {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } catch(e) {}
+
       try {
         localStorage.removeItem('resonance_auth_user');
+        localStorage.removeItem('resonance_token');
       } catch(e) {}
+
       window.location.href = 'index.html';
     }
 

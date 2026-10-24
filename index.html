@@ -3028,11 +3028,50 @@
         alertBox.innerHTML = '';
       }
 
-      if (!email || !password) {
+      // Step 4: Frontend checks correctness of input fields
+      if (!email && !password) {
         if (alertBox) {
           alertBox.className = 'login-alert error';
-          alertBox.textContent = 'Пожалуйста, укажите email и пароль.';
+          alertBox.textContent = 'Пожалуйста, введите адрес электронной почты и пароль.';
         }
+        document.getElementById('loginEmail')?.focus();
+        return;
+      }
+
+      if (!email) {
+        if (alertBox) {
+          alertBox.className = 'login-alert error';
+          alertBox.textContent = 'Пожалуйста, укажите email резидента.';
+        }
+        document.getElementById('loginEmail')?.focus();
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        if (alertBox) {
+          alertBox.className = 'login-alert error';
+          alertBox.textContent = 'Пожалуйста, укажите корректный адрес электронной почты (например, name@domain.ru).';
+        }
+        document.getElementById('loginEmail')?.focus();
+        return;
+      }
+
+      if (!password) {
+        if (alertBox) {
+          alertBox.className = 'login-alert error';
+          alertBox.textContent = 'Пожалуйста, введите пароль.';
+        }
+        document.getElementById('loginPassword')?.focus();
+        return;
+      }
+
+      if (password.length < 6) {
+        if (alertBox) {
+          alertBox.className = 'login-alert error';
+          alertBox.textContent = 'Пароль должен содержать не менее 6 символов.';
+        }
+        document.getElementById('loginPassword')?.focus();
         return;
       }
 
@@ -3057,11 +3096,11 @@
 
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>Проверка созвучия...</span>';
+        submitBtn.innerHTML = '<span>Проверка созвучия в базе данных...</span>';
       }
 
       try {
-        // 1. Try real backend API
+        // Step 5: Frontend sends HTTP request to Backend
         const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -3070,8 +3109,9 @@
 
         const data = await response.json();
 
+        // Step 8-9: If credentials are valid, server creates session / issues token
         if (data.success && data.user) {
-          onLoginSuccess(data.user);
+          onLoginSuccess(data.user, data.access_token);
           return;
         } else if (data.error === 'superadmin_restricted') {
           if (alertBox) {
@@ -3089,6 +3129,7 @@
             `;
           }
         } else {
+          // Step 10: If data is incorrect, display error message
           if (alertBox) {
             alertBox.className = 'login-alert error';
             alertBox.textContent = data.message || 'Неверный адрес электронной почты или пароль.';
@@ -3113,7 +3154,7 @@
               archetype: "Мудрец • Архитектор"
             }
           };
-          onLoginSuccess(fallbackUser);
+          onLoginSuccess(fallbackUser, "demo_offline_token_resident_432hz");
           return;
         } else {
           if (alertBox) {
@@ -3129,8 +3170,9 @@
       }
     }
 
-    function onLoginSuccess(user) {
+    function onLoginSuccess(user, token) {
       try {
+        if (token) localStorage.setItem('resonance_token', token);
         localStorage.setItem('resonance_auth_user', JSON.stringify(user));
       } catch(e) {}
 
