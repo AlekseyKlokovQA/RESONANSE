@@ -7,6 +7,9 @@ import os
 import sys
 import argparse
 import subprocess
+import socket
+import threading
+import webbrowser
 import hmac
 import hashlib
 import base64
@@ -1099,19 +1102,55 @@ admin.add_model_view(QuestionAdmin)
 admin.add_model_view(SubscriptionAdmin)
 
 
+def ensure_port_free(port: int):
+    """Frees the port if occupied by a previous dead/zombie process."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind(("0.0.0.0", port))
+        s.close()
+        return
+    except OSError:
+        pass
+
+    if sys.platform == "win32":
+        try:
+            out = subprocess.check_output(f"netstat -ano | findstr :{port}", shell=True).decode()
+            for line in out.splitlines():
+                if "LISTENING" in line:
+                    parts = line.strip().split()
+                    pid = parts[-1]
+                    if pid.isdigit() and int(pid) != os.getpid():
+                        print(f"[INFO] Freeing port {port} (stopping process PID {pid})...")
+                        subprocess.run(f"taskkill /F /PID {pid}", shell=True, capture_output=True)
+            time.sleep(0.5)
+        except Exception:
+            pass
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run Resonance Platform and SQLAdmin")
     parser.add_argument("--host", default="0.0.0.0", help="Host address (default: 0.0.0.0)")
     parser.add_argument("--port", type=int, default=3000, help="Port to listen on (default: 3000)")
     args = parser.parse_args()
 
+    ensure_port_free(args.port)
+
     print("=" * 70)
     print("  RESONANCE CLUB — FASTAPI + SQLADMIN BACKEND (v1.0.2)")
     print("=" * 70)
     print(f"  🌐 Витрина Клуба (Лендинг): http://localhost:{args.port}/")
-    print(f"  💎 SQLAdmin Панель Консьержа: http://localhost:{args.port}/admin")
+    print(f"  💎 SQLAdmin Панель Консьержа: http://localhost:{args.port}/admin/")
     print(f"  👤 Кабинет Резидента: http://localhost:{args.port}/profile.html")
     print("=" * 70)
+
+    def auto_open_browser():
+        time.sleep(1.2)
+        try:
+            webbrowser.open(f"http://localhost:{args.port}/admin/")
+        except Exception:
+            pass
+
+    threading.Thread(target=auto_open_browser, daemon=True).start()
 
     try:
         uvicorn.run("app_admin:app", host=args.host, port=args.port, reload=False)
@@ -1120,7 +1159,7 @@ def main():
         print(f"\n[WARNING] Port {args.port} is already in use or unavailable: {e}")
         print(f"[INFO] Switching to fallback port {alt_port}...")
         print(f"  🌐 Витрина Клуба: http://localhost:{alt_port}/")
-        print(f"  💎 SQLAdmin Панель Консьержа: http://localhost:{alt_port}/admin\n")
+        print(f"  💎 SQLAdmin Панель Консьержа: http://localhost:{alt_port}/admin/\n")
         uvicorn.run("app_admin:app", host=args.host, port=alt_port, reload=False)
 
 

@@ -196,15 +196,9 @@ echo [OK] Database is ready.
 echo.
 
 rem --------------------------------------------------------------------
-rem Phase 7: Free Port 3000 and Launch FastAPI + SQLAdmin Server
+rem Phase 7: Launch FastAPI + SQLAdmin Server
 rem --------------------------------------------------------------------
 :start_app
-rem Check if port 3000 is occupied by an old PowerShell server or background process
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') do (
-    echo [INFO] Port 3000 is occupied by existing process (PID: %%a). Freeing port 3000...
-    taskkill /F /PID %%a >nul 2>&1
-)
-
 echo [3/3] Starting FastAPI + SQLAdmin backend on http://localhost:3000/admin/ ...
 echo Opening browser...
 start "" "http://localhost:3000/admin/"
