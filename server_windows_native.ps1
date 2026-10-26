@@ -1,4 +1,4 @@
-﻿# ==============================================================================
+# ==============================================================================
 # Resonance Club - Native Windows Server (100% Pure PowerShell, Zero Install)
 # Does NOT use Add-Type (No compiler, No %TEMP% DLLs, No Antivirus blocks)
 # Does NOT use http.sys (No Admin rights, No "Access Denied" errors)
@@ -152,6 +152,11 @@ try {
                 $rawUrl = "index.html"
             }
             $rawUrl = [System.Uri]::UnescapeDataString($rawUrl)
+
+            # Map admin routes to standalone Concierge Panel admin.htm
+            if ($rawUrl -eq "admin" -or $rawUrl -eq "admin/" -or $rawUrl.StartsWith("admin/") -or $rawUrl -eq "admin.html") {
+                $rawUrl = "admin.htm"
+            }
 
             $filePath = Join-Path $ScriptDir $rawUrl
             if (-not (Test-Path -LiteralPath $filePath -PathType Leaf)) {

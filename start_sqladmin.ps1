@@ -86,15 +86,19 @@ Write-Host "[INFO] Using Python: $pyExe" -ForegroundColor Cyan
 Write-Host ""
 
 # 4. Check dependencies
-Write-Host "[1/3] Checking dependencies: fastapi, sqladmin, sqlalchemy, uvicorn..." -ForegroundColor Cyan
-& $pyExe $pyPrefix -c "import fastapi, sqladmin, sqlalchemy, uvicorn, greenlet, aiosqlite, wtforms" 2>$null
+Write-Host "[1/3] Checking dependencies: fastapi, sqladmin, sqlalchemy, uvicorn, jinja2..." -ForegroundColor Cyan
+& $pyExe $pyPrefix -c "import fastapi, sqladmin, sqlalchemy, uvicorn, greenlet, aiosqlite, wtforms, jinja2" 2>$null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[INFO] Missing dependencies. Installing via pip..." -ForegroundColor Yellow
-    & $pyExe $pyPrefix -m pip install fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms
+    & $pyExe $pyPrefix -m pip install fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms jinja2 python-multipart numpy
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[INFO] Retrying with --user..." -ForegroundColor Yellow
-        & $pyExe $pyPrefix -m pip install --user fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms
+        & $pyExe $pyPrefix -m pip install --user fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms jinja2 python-multipart numpy
     }
+}
+& $pyExe $pyPrefix -c "import numpy" 2>$null
+if ($LASTEXITCODE -ne 0) {
+    & $pyExe $pyPrefix -m pip install numpy 2>$null
 }
 Write-Host "[OK] Dependencies verified." -ForegroundColor Green
 Write-Host ""
@@ -112,8 +116,18 @@ Write-Host "[OK] Database ready." -ForegroundColor Green
 Write-Host ""
 
 # 6. Start Server
-Write-Host "[3/3] Starting FastAPI + SQLAdmin backend on http://localhost:3000/admin ..." -ForegroundColor Yellow
-Start-Process "http://localhost:3000/admin"
+Write-Host "[3/3] Starting FastAPI + SQLAdmin backend on http://localhost:3000/admin/ ..." -ForegroundColor Yellow
+
+# Free port 3000 if occupied
+try {
+    $conns = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
+    foreach ($c in $conns) {
+        Stop-Process -Id $c.OwningProcess -Force -ErrorAction SilentlyContinue
+        Write-Host "[INFO] Freed port 3000 (stopped process PID $($c.OwningProcess))." -ForegroundColor Cyan
+    }
+} catch {}
+
+Start-Process "http://localhost:3000/admin/"
 
 & $pyExe $pyPrefix app_admin.py --host 0.0.0.0 --port 3000
 

@@ -13,7 +13,15 @@ import base64
 import json
 import time
 import uvicorn
-import numpy as np
+import math
+
+try:
+    import numpy as np
+    HAS_NUMPY = True
+except ImportError:
+    HAS_NUMPY = False
+    np = None
+
 from urllib.parse import urlparse
 from jinja2 import pass_context
 from contextlib import asynccontextmanager
@@ -610,54 +618,66 @@ def analyze_audio_file(file_path: str) -> dict:
     """
     duration_sec = 24
     pitch_f0 = 136.1
-    # Fallback synthetic harmonic spectrogram
-    spectrogram = [[int(20 + 50 * np.sin(i * 0.4 + j * 0.2)**2) for j in range(32)] for i in range(16)]
+    # Fallback synthetic harmonic spectrogram using standard math library
+    spectrogram = [[int(20 + 50 * (math.sin(i * 0.4 + j * 0.2)**2)) for j in range(32)] for i in range(16)]
 
+    # Attempt to probe duration using ffprobe if available
     try:
-        cmd = ['ffmpeg', '-i', file_path, '-f', 's16le', '-ac', '1', '-ar', '16000', 'pipe:1']
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15)
-        if res.returncode == 0 and len(res.stdout) > 3200:
-            samples = np.frombuffer(res.stdout, dtype=np.int16).astype(np.float32)
-            calc_dur = len(samples) / 16000.0
+        probe_cmd = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', file_path]
+        probe_res = subprocess.run(probe_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+        if probe_res.returncode == 0 and probe_res.stdout.strip():
+            calc_dur = float(probe_res.stdout.strip())
             if calc_dur > 0.3:
                 duration_sec = max(1, round(calc_dur))
+    except Exception:
+        pass
 
-            # Pitch F0 estimation via autocorrelation in speech frequency band (75 - 320 Hz)
-            min_lag = int(16000 / 320)
-            max_lag = int(16000 / 75)
-            mid = len(samples) // 2
-            seg_len = min(4096, len(samples))
-            seg = samples[mid - seg_len//2 : mid + seg_len//2]
-            if len(seg) >= 2048:
-                seg = seg - np.mean(seg)
-                corr = np.correlate(seg, seg, mode='full')
-                corr = corr[len(corr)//2:]
-                if max_lag < len(corr):
-                    peak_lag = min_lag + np.argmax(corr[min_lag:max_lag])
-                    calc_f0 = 16000.0 / peak_lag
-                    if 70 <= calc_f0 <= 350:
-                        pitch_f0 = round(float(calc_f0), 1)
+    if HAS_NUMPY:
+        try:
+            cmd = ['ffmpeg', '-i', file_path, '-f', 's16le', '-ac', '1', '-ar', '16000', 'pipe:1']
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15)
+            if res.returncode == 0 and len(res.stdout) > 3200:
+                samples = np.frombuffer(res.stdout, dtype=np.int16).astype(np.float32)
+                calc_dur = len(samples) / 16000.0
+                if calc_dur > 0.3:
+                    duration_sec = max(1, round(calc_dur))
 
-            # Spectrogram generation: 16 time frames x 32 frequency bands
-            frame_size = 512
-            hop_size = max(1, (len(samples) - frame_size) // 16)
-            frames = []
-            for i in range(16):
-                start = i * hop_size
-                frame = samples[start:start+frame_size]
-                if len(frame) < frame_size:
-                    frame = np.pad(frame, (0, frame_size - len(frame)))
-                windowed = frame * np.hanning(frame_size)
-                fft_mag = np.abs(np.fft.rfft(windowed))[:32]
-                max_val = np.max(fft_mag)
-                if max_val > 0:
-                    norm = (fft_mag / max_val * 100).astype(int).tolist()
-                else:
-                    norm = [15] * 32
-                frames.append(norm)
-            spectrogram = frames
-    except Exception as e:
-        print(f"Warning: Audio analysis fallback used: {e}")
+                # Pitch F0 estimation via autocorrelation in speech frequency band (75 - 320 Hz)
+                min_lag = int(16000 / 320)
+                max_lag = int(16000 / 75)
+                mid = len(samples) // 2
+                seg_len = min(4096, len(samples))
+                seg = samples[mid - seg_len//2 : mid + seg_len//2]
+                if len(seg) >= 2048:
+                    seg = seg - np.mean(seg)
+                    corr = np.correlate(seg, seg, mode='full')
+                    corr = corr[len(corr)//2:]
+                    if max_lag < len(corr):
+                        peak_lag = min_lag + np.argmax(corr[min_lag:max_lag])
+                        calc_f0 = 16000.0 / peak_lag
+                        if 70 <= calc_f0 <= 350:
+                            pitch_f0 = round(float(calc_f0), 1)
+
+                # Spectrogram generation: 16 time frames x 32 frequency bands
+                frame_size = 512
+                hop_size = max(1, (len(samples) - frame_size) // 16)
+                frames = []
+                for i in range(16):
+                    start = i * hop_size
+                    frame = samples[start:start+frame_size]
+                    if len(frame) < frame_size:
+                        frame = np.pad(frame, (0, frame_size - len(frame)))
+                    windowed = frame * np.hanning(frame_size)
+                    fft_mag = np.abs(np.fft.rfft(windowed))[:32]
+                    max_val = np.max(fft_mag)
+                    if max_val > 0:
+                        norm = (fft_mag / max_val * 100).astype(int).tolist()
+                    else:
+                        norm = [15] * 32
+                    frames.append(norm)
+                spectrogram = frames
+        except Exception as e:
+            print(f"Warning: Audio analysis fallback used: {e}")
 
     # Determine harmonic club keynote & timbre classification
     if pitch_f0 < 170:

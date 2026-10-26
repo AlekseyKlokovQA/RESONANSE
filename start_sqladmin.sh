@@ -14,9 +14,9 @@ echo "===================================================================="
 echo ""
 
 echo "Checking Python 3 environment..."
-python3 -c "import fastapi, sqladmin, sqlalchemy, uvicorn, greenlet, aiosqlite, wtforms" 2>/dev/null || {
+python3 -c "import fastapi, sqladmin, sqlalchemy, uvicorn, greenlet, aiosqlite, wtforms, jinja2" 2>/dev/null || {
     echo "Installing missing dependencies..."
-    python3 -m pip install fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms
+    python3 -m pip install fastapi sqladmin sqlalchemy uvicorn aiosqlite greenlet wtforms jinja2 python-multipart numpy
 }
 
 echo "Initializing database..."
