@@ -75,10 +75,12 @@ class VoiceBio(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
-    audio_file = Column(String(255), nullable=False)  # e.g. /alexander_voice.mp3
+    audio_file = Column(String(255), nullable=False)  # e.g. /alexander_voice.mp3 or /uploads/voice_bios/...
     duration_sec = Column(Integer, nullable=False, default=24)
     transcription = Column(Text, nullable=True)
     pitch_f0 = Column(Float, nullable=False, default=128.5)
+    prompt_topic = Column(String(255), nullable=True)
+    spectrogram_json = Column(Text, nullable=True)
     status = Column(String(32), nullable=False, default="pending")  # pending, verified, rejected
     verified_at = Column(DateTime, nullable=True)
 

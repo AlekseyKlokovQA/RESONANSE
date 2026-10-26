@@ -139,10 +139,15 @@ class VoiceBioAdmin(ModelView, model=VoiceBio):
     icon = "fa-solid fa-microphone-lines"
     category = "Клуб и Резиденты"
 
+    page_size = 50
+    page_size_options = [20, 50, 100]
+    column_default_sort = [(VoiceBio.id, True)]
+
     column_list = [
         VoiceBio.id,
         VoiceBio.user,
         VoiceBio.audio_file,
+        VoiceBio.prompt_topic,
         VoiceBio.duration_sec,
         VoiceBio.pitch_f0,
         VoiceBio.status,
@@ -155,6 +160,7 @@ class VoiceBioAdmin(ModelView, model=VoiceBio):
         VoiceBio.id: "ID",
         VoiceBio.user: "Кандидат / Резидент",
         VoiceBio.audio_file: "Прослушать визитку",
+        VoiceBio.prompt_topic: "Тема визитки",
         VoiceBio.duration_sec: "Длительность",
         VoiceBio.transcription: "Расшифровка речи (STT Whisper)",
         VoiceBio.pitch_f0: "Тон F0",
@@ -167,7 +173,7 @@ class VoiceBioAdmin(ModelView, model=VoiceBio):
             f'''
             <div class="audio-table-cell">
                 <audio controls preload="none" style="height:32px; width:220px; outline:none;">
-                    <source src="/{m.audio_file.lstrip('/')}" type="audio/mpeg">
+                    <source src="/{m.audio_file.lstrip('/')}">
                     Ваш браузер не поддерживает аудио.
                 </audio>
             </div>

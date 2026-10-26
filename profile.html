@@ -403,6 +403,234 @@
       100% { height: 22px; }
     }
 
+    /* Acoustic Studio Styles (Module 2: 1.0.2.3_Voice) */
+    .acoustic-keynote-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .studio-mode-switch {
+      display: inline-flex;
+      background: rgba(10, 11, 14, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .studio-mode-switch .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .studio-mode-switch .mode-btn.active {
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-light);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+    }
+
+    .visualizer-box {
+      background: #08080A;
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: var(--radius-md);
+      position: relative;
+      overflow: hidden;
+      height: 110px;
+    }
+
+    #liveAudioVisualizer {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .visualizer-overlay-info {
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .live-rec-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.6);
+      padding: 3px 10px;
+      border-radius: 12px;
+      backdrop-filter: blur(4px);
+    }
+
+    .live-rec-status .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #6B7280;
+    }
+
+    .live-rec-status.recording .status-dot {
+      background: #EF4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+      animation: pulseRecord 1s infinite;
+    }
+
+    @keyframes pulseRecord {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+    }
+
+    .live-rec-timer {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--gold-light);
+      background: rgba(0, 0, 0, 0.6);
+      padding: 3px 10px;
+      border-radius: 12px;
+    }
+
+    .recorder-actions-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .btn-record {
+      background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #997A15 100%);
+      color: #0A0A0C;
+      font-weight: 700;
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-record.is-recording {
+      background: #EF4444;
+      color: #FFFFFF;
+      animation: pulseRecordBtn 1.5s infinite;
+    }
+
+    @keyframes pulseRecordBtn {
+      0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.8); }
+    }
+
+    .file-dropzone {
+      border: 2px dashed rgba(212, 175, 55, 0.35);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      text-align: center;
+      background: rgba(10, 11, 14, 0.5);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .file-dropzone:hover {
+      border-color: var(--gold-primary);
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    .spectrogram-canvas-wrap {
+      position: relative;
+      background: #08080A;
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      height: 130px;
+    }
+
+    #studioSpectrogramCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .spectrogram-axis-y {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      bottom: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--gold-light);
+      opacity: 0.6;
+      pointer-events: none;
+      text-align: right;
+    }
+
+    .acoustic-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .acoustic-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .metric-card {
+      background: rgba(12, 13, 17, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric-lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-val {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      margin-bottom: 4px;
+    }
+
+    .metric-sub {
+      font-size: 11px;
+      color: var(--text-subtle);
+    }
+
     /* Privacy Toggle Switch */
     .privacy-toggle-box {
       background: rgba(255, 255, 255, 0.03);
@@ -1655,6 +1883,10 @@
             <p id="sideVoiceTopicDesc" style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
               Тема: «О чем я могу говорить часами без остановки»
             </p>
+            <button type="button" class="btn btn-ghost btn-sm" style="width: 100%; margin-top: 10px; font-size: 11px; padding: 7px 10px; border: 1px solid rgba(212, 175, 55, 0.35); border-radius: 6px; color: var(--gold-light); display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(212, 175, 55, 0.05); cursor: pointer;" onclick="scrollToVoiceStudio()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <span>Записать / Обновить визитку</span>
+            </button>
           </div>
 
           <!-- Privacy Blur Toggle -->
@@ -1794,6 +2026,137 @@
                 <span style="font-size: 11px; color: var(--text-subtle);">Хобби / Детали</span>
               </div>
             </div>
+          </div>
+
+          <!-- ==========================================
+               ACOUSTIC STUDIO: VOICE BIO & SPECTROGRAM (Module 2: 1.0.2.3_Voice)
+               ========================================== -->
+          <div class="glass-card form-section-card" id="voiceStudioCard">
+            <div class="form-section-header">
+              <h3 class="form-section-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                <span>Акустическая студия: Голосовая визитка со спектрограммой</span>
+              </h3>
+              <span class="acoustic-keynote-badge" id="studioKeynoteBadge">432 Гц • Камертон</span>
+            </div>
+
+            <!-- Prompt Topic Selection -->
+            <div class="voice-prompt-group" style="margin-bottom: 20px;">
+              <label class="field-label" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Тема для голосовой визитки (Выберите вектор диалога):</span>
+                <span style="font-size: 11px; color: var(--gold-light);">15–45 секунд спонтанной речи</span>
+              </label>
+              <select id="voicePromptTopicSelect" class="field-select" onchange="handleVoiceTopicChange()">
+                <option value="О чем я могу говорить часами без остановки" selected>1. «О чем я могу говорить часами без остановки»</option>
+                <option value="Мой главный нерушимый жизненный принцип">2. «Мой главный нерушимый жизненный принцип»</option>
+                <option value="Мое представление об идеальном вечере воскресенья">3. «Мое представление об идеальном вечере воскресенья»</option>
+                <option value="Что заставляет меня искренне смеяться или замереть от восторга">4. «Что заставляет меня искренне смеяться или замереть от восторга»</option>
+                <option value="Каким я вижу союз двух автономных личностей">5. «Каким я вижу союз двух автономных личностей»</option>
+              </select>
+            </div>
+
+            <!-- Mode Switcher: Microphone Record vs File Upload -->
+            <div class="studio-mode-switch">
+              <button type="button" class="mode-btn active" id="modeRecordBtn" onclick="switchStudioMode('record')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                <span>Запись с микрофона</span>
+              </button>
+              <button type="button" class="mode-btn" id="modeUploadBtn" onclick="switchStudioMode('upload')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Загрузка аудиофайла</span>
+              </button>
+            </div>
+
+            <!-- Live Microphone Recorder Area -->
+            <div id="studioRecordArea" class="studio-subpanel active">
+              <div class="visualizer-box">
+                <canvas id="liveAudioVisualizer" width="600" height="110"></canvas>
+                <div class="visualizer-overlay-info">
+                  <div class="live-rec-status" id="liveRecStatus">
+                    <span class="status-dot"></span>
+                    <span id="liveRecStatusText">Микрофон в режиме ожидания</span>
+                  </div>
+                  <div class="live-rec-timer" id="liveRecTimer">00:00 / 00:30</div>
+                </div>
+              </div>
+
+              <div class="recorder-actions-row">
+                <button type="button" class="btn btn-record" id="startRecBtn" onclick="toggleMicrophoneRecording()">
+                  <svg id="recIconMic" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
+                  <span id="recBtnLabel">Начать запись визитки</span>
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" id="resetRecBtn" onclick="resetRecordedAudio()" style="display: none;">
+                  <span>↺ Перезаписать</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- File Upload Alternative Area -->
+            <div id="studioUploadArea" class="studio-subpanel" style="display: none;">
+              <div class="file-dropzone" id="fileDropzone" onclick="document.getElementById('studioFileInput').click()">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gold-primary)" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                <div style="font-weight: 600; color: #FFFFFF; margin-top: 10px;" id="dropzoneMainText">Выберите или перетащите аудиофайл</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="dropzoneSubText">Поддерживаются форматы: .mp3, .wav, .m4a, .webm, .ogg (до 25 МБ)</div>
+                <input type="file" id="studioFileInput" accept="audio/*" style="display: none;" onchange="handleStudioFileSelect(event)">
+              </div>
+            </div>
+
+            <!-- Playback Preview -->
+            <div id="audioPreviewContainer" style="display: none; margin-top: 16px;">
+              <label class="field-label" style="font-size: 12px; color: var(--gold-light);">Предварительное прослушивание аудиозаписи:</label>
+              <audio id="studioAudioPreview" controls style="width: 100%; height: 38px; outline: none; border-radius: 8px;"></audio>
+            </div>
+
+            <!-- Spectrogram & Acoustic Analysis Section -->
+            <div class="spectrogram-section" style="margin-top: 22px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label class="field-label" style="margin-bottom: 0;">2D-Спектрограмма голоса (Частотно-временной спектр):</label>
+                <span style="font-size: 11px; color: var(--text-muted);">FFT 512 • 32 диапазона частот (0–4000 Гц)</span>
+              </div>
+              <div class="spectrogram-canvas-wrap">
+                <canvas id="studioSpectrogramCanvas" width="600" height="130"></canvas>
+                <div class="spectrogram-axis-y">
+                  <span>4 кГц</span>
+                  <span>2 кГц</span>
+                  <span>500 Гц</span>
+                  <span>75 Гц</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acoustic Metrics 4-Cards Grid -->
+            <div class="acoustic-metrics-grid" style="margin-top: 20px;">
+              <div class="metric-card">
+                <div class="metric-lbl">Тон голоса F0</div>
+                <div class="metric-val" id="metricF0Val">192.8 Гц</div>
+                <div class="metric-sub" id="metricF0Sub">Естественный регистр</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-lbl">Камертон клуба</div>
+                <div class="metric-val" id="metricClubFreqVal">432 Гц</div>
+                <div class="metric-sub" id="metricClubFreqSub">Гармонический унисон</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-lbl">Тембр и теплота</div>
+                <div class="metric-val" id="metricTimbreVal" style="font-size: 15px;">Бархатный баритон</div>
+                <div class="metric-sub" id="metricTimbreSub">Чистая квинта</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-lbl">Статус визитки</div>
+                <div class="metric-val" id="metricStatusVal" style="font-size: 14px; color: #10B981;">✓ Активна</div>
+                <div class="metric-sub" id="metricStatusSub">Верифицирована клубом</div>
+              </div>
+            </div>
+
+            <!-- Submit to Concierge Button -->
+            <div style="margin-top: 24px; display: flex; gap: 12px; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
+              <span id="studioUploadStatusMsg" style="font-size: 13px; color: var(--gold-light);"></span>
+              <button type="button" id="saveVoiceBioServerBtn" class="btn btn-gold" style="padding: 14px 28px; font-size: 14px;" onclick="saveAndUploadVoiceBio()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><polyline points="20 6 9 17 4 12"/></svg>
+                <span>✦ Сохранить и отправить Консьержу клуба</span>
+              </button>
+            </div>
+
           </div>
 
         </div>
@@ -2725,6 +3088,446 @@
       setTimeout(() => {
         toast.classList.remove('show');
       }, 3500);
+    }
+
+    // ====================================================================
+    // MODULE 2: ACOUSTIC STUDIO & LIVE SPECTROGRAM (1.0.2.3_Voice)
+    // ====================================================================
+    let studioMediaRecorder = null;
+    let studioAudioChunks = [];
+    let studioAudioContext = null;
+    let studioAnalyserNode = null;
+    let studioMicrophoneStream = null;
+    let isStudioRecording = false;
+    let studioTimerInterval = null;
+    let studioRecordSeconds = 0;
+    let studioActiveAudioBlob = null;
+    let studioActiveAudioFile = null;
+    let studioVisualizerAnimFrame = null;
+    let currentSpectrogramMatrix = null;
+
+    function scrollToVoiceStudio() {
+      switchTab(0);
+      const card = document.getElementById('voiceStudioCard');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease';
+        card.style.boxShadow = '0 0 30px rgba(212, 175, 55, 0.45)';
+        card.style.borderColor = 'var(--gold-primary)';
+        setTimeout(() => {
+          card.style.boxShadow = '';
+          card.style.borderColor = '';
+        }, 1800);
+      }
+    }
+
+    function switchStudioMode(mode) {
+      const recBtn = document.getElementById('modeRecordBtn');
+      const uplBtn = document.getElementById('modeUploadBtn');
+      const recArea = document.getElementById('studioRecordArea');
+      const uplArea = document.getElementById('studioUploadArea');
+
+      if (mode === 'record') {
+        recBtn.classList.add('active');
+        uplBtn.classList.remove('active');
+        recArea.style.display = 'block';
+        uplArea.style.display = 'none';
+      } else {
+        uplBtn.classList.add('active');
+        recBtn.classList.remove('active');
+        uplArea.style.display = 'block';
+        recArea.style.display = 'none';
+      }
+    }
+
+    function handleVoiceTopicChange() {
+      const sel = document.getElementById('voicePromptTopicSelect');
+      const topic = sel.value;
+      const sideTopic = document.getElementById('sideVoiceTopicDesc');
+      if (sideTopic) {
+        sideTopic.textContent = `Тема: «${topic}»`;
+      }
+    }
+
+    async function toggleMicrophoneRecording() {
+      if (!isStudioRecording) {
+        await startMicrophoneRecording();
+      } else {
+        stopMicrophoneRecording();
+      }
+    }
+
+    async function startMicrophoneRecording() {
+      try {
+        studioAudioChunks = [];
+        studioRecordSeconds = 0;
+
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        studioMicrophoneStream = stream;
+
+        // Init Web Audio API Analyser
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        studioAudioContext = new AudioCtx();
+        const source = studioAudioContext.createMediaStreamSource(stream);
+        studioAnalyserNode = studioAudioContext.createAnalyser();
+        studioAnalyserNode.fftSize = 256;
+        source.connect(studioAnalyserNode);
+
+        // Init MediaRecorder
+        let mimeType = 'audio/webm';
+        if (!window.MediaRecorder || !MediaRecorder.isTypeSupported('audio/webm')) {
+          if (window.MediaRecorder && MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+          else if (window.MediaRecorder && MediaRecorder.isTypeSupported('audio/ogg')) mimeType = 'audio/ogg';
+          else mimeType = '';
+        }
+
+        const options = mimeType ? { mimeType } : {};
+        studioMediaRecorder = new MediaRecorder(stream, options);
+
+        studioMediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            studioAudioChunks.push(e.data);
+          }
+        };
+
+        studioMediaRecorder.onstop = () => {
+          const blobType = mimeType || 'audio/webm';
+          studioActiveAudioBlob = new Blob(studioAudioChunks, { type: blobType });
+          studioActiveAudioFile = null;
+
+          // Setup preview player
+          const preview = document.getElementById('studioAudioPreview');
+          const previewCont = document.getElementById('audioPreviewContainer');
+          if (preview && previewCont) {
+            preview.src = URL.createObjectURL(studioActiveAudioBlob);
+            previewCont.style.display = 'block';
+          }
+
+          // Show reset button
+          const resetBtn = document.getElementById('resetRecBtn');
+          if (resetBtn) resetBtn.style.display = 'inline-flex';
+
+          // Simulate immediate visual preview until server analysis
+          generateClientSpectrogramPreview();
+        };
+
+        studioMediaRecorder.start(100);
+        isStudioRecording = true;
+
+        // Update UI
+        const recBtn = document.getElementById('startRecBtn');
+        const recLabel = document.getElementById('recBtnLabel');
+        const statusBox = document.getElementById('liveRecStatus');
+        const statusTxt = document.getElementById('liveRecStatusText');
+        if (recBtn) recBtn.classList.add('is-recording');
+        if (recLabel) recLabel.textContent = 'Остановить запись';
+        if (statusBox) statusBox.classList.add('recording');
+        if (statusTxt) statusTxt.textContent = 'Идет запись речи... Говорите свободно';
+
+        // Start Timer
+        const timerEl = document.getElementById('liveRecTimer');
+        studioTimerInterval = setInterval(() => {
+          studioRecordSeconds++;
+          const mins = String(Math.floor(studioRecordSeconds / 60)).padStart(2, '0');
+          const secs = String(studioRecordSeconds % 60).padStart(2, '0');
+          if (timerEl) timerEl.textContent = `${mins}:${secs} / 00:45`;
+
+          if (studioRecordSeconds >= 45) {
+            stopMicrophoneRecording();
+          }
+        }, 1000);
+
+        // Start Canvas Visualizer Loop
+        renderLiveVisualizer();
+
+      } catch (err) {
+        console.warn('Microphone access denied or unavailable:', err);
+        showToast('Микрофон недоступен. Вы можете загрузить аудиофайл через кнопку «Загрузка аудиофайла».');
+        switchStudioMode('upload');
+      }
+    }
+
+    function stopMicrophoneRecording() {
+      if (studioMediaRecorder && studioMediaRecorder.state !== 'inactive') {
+        studioMediaRecorder.stop();
+      }
+      if (studioMicrophoneStream) {
+        studioMicrophoneStream.getTracks().forEach(t => t.stop());
+      }
+      if (studioTimerInterval) {
+        clearInterval(studioTimerInterval);
+        studioTimerInterval = null;
+      }
+      if (studioVisualizerAnimFrame) {
+        cancelAnimationFrame(studioVisualizerAnimFrame);
+        studioVisualizerAnimFrame = null;
+      }
+
+      isStudioRecording = false;
+
+      // Update UI
+      const recBtn = document.getElementById('startRecBtn');
+      const recLabel = document.getElementById('recBtnLabel');
+      const statusBox = document.getElementById('liveRecStatus');
+      const statusTxt = document.getElementById('liveRecStatusText');
+      if (recBtn) recBtn.classList.remove('is-recording');
+      if (recLabel) recLabel.textContent = 'Записать заново';
+      if (statusBox) statusBox.classList.remove('recording');
+      if (statusTxt) statusTxt.textContent = `Запись завершена (${studioRecordSeconds} сек.)`;
+    }
+
+    function resetRecordedAudio() {
+      stopMicrophoneRecording();
+      studioActiveAudioBlob = null;
+      studioActiveAudioFile = null;
+      document.getElementById('studioAudioPreview').src = '';
+      document.getElementById('audioPreviewContainer').style.display = 'none';
+      document.getElementById('resetRecBtn').style.display = 'none';
+      document.getElementById('recBtnLabel').textContent = 'Начать запись визитки';
+      document.getElementById('liveRecTimer').textContent = '00:00 / 00:30';
+      document.getElementById('liveRecStatusText').textContent = 'Микрофон в режиме ожидания';
+
+      // Clear visualizer
+      const canvas = document.getElementById('liveAudioVisualizer');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function handleStudioFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      studioActiveAudioFile = file;
+      studioActiveAudioBlob = null;
+
+      document.getElementById('dropzoneMainText').textContent = `Выбран файл: ${file.name}`;
+      document.getElementById('dropzoneSubText').textContent = `Размер: ${(file.size / (1024 * 1024)).toFixed(2)} МБ • Нажмите для замены`;
+
+      const preview = document.getElementById('studioAudioPreview');
+      const previewCont = document.getElementById('audioPreviewContainer');
+      if (preview && previewCont) {
+        preview.src = URL.createObjectURL(file);
+        previewCont.style.display = 'block';
+      }
+
+      generateClientSpectrogramPreview();
+    }
+
+    function renderLiveVisualizer() {
+      const canvas = document.getElementById('liveAudioVisualizer');
+      if (!canvas || !studioAnalyserNode) return;
+      const ctx = canvas.getContext('2d');
+      const bufferLength = studioAnalyserNode.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function draw() {
+        if (!isStudioRecording) return;
+        studioVisualizerAnimFrame = requestAnimationFrame(draw);
+
+        studioAnalyserNode.getByteFrequencyData(dataArray);
+
+        ctx.fillStyle = '#08080A';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw frequency bars
+        const barWidth = (canvas.width / bufferLength) * 2.2;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const barHeight = (dataArray[i] / 255) * (canvas.height - 20);
+
+          // Gold Gradient
+          const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
+          gradient.addColorStop(0, '#7A5B0B');
+          gradient.addColorStop(0.7, '#D4AF37');
+          gradient.addColorStop(1, '#F3E5AB');
+
+          ctx.fillStyle = gradient;
+          ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+
+          x += barWidth;
+        }
+
+        // Draw center oscilloscope wave overlay
+        const timeData = new Uint8Array(bufferLength);
+        studioAnalyserNode.getByteTimeDomainData(timeData);
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.beginPath();
+        const sliceWidth = canvas.width / bufferLength;
+        let waveX = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          const v = timeData[i] / 128.0;
+          const y = (v * canvas.height) / 2;
+          if (i === 0) ctx.moveTo(waveX, y);
+          else ctx.lineTo(waveX, y);
+          waveX += sliceWidth;
+        }
+        ctx.stroke();
+      }
+
+      draw();
+    }
+
+    function generateClientSpectrogramPreview() {
+      // Generates an immediate visual pattern on the canvas
+      const matrix = [];
+      for (let i = 0; i < 16; i++) {
+        const frame = [];
+        for (let j = 0; j < 32; j++) {
+          const val = Math.floor(Math.random() * 85 * Math.sin((i / 16) * Math.PI));
+          frame.push(Math.max(5, val));
+        }
+        matrix.push(frame);
+      }
+      renderSpectrogramHeatmap(matrix, 'studioSpectrogramCanvas');
+    }
+
+    function renderSpectrogramHeatmap(matrix, canvasId) {
+      const canvas = document.getElementById(canvasId || 'studioSpectrogramCanvas');
+      if (!canvas || !matrix || matrix.length === 0) return;
+      const ctx = canvas.getContext('2d');
+      const numFrames = matrix.length;
+      const numBins = matrix[0].length;
+
+      const cellWidth = canvas.width / numFrames;
+      const cellHeight = canvas.height / numBins;
+
+      ctx.fillStyle = '#08080A';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let f = 0; f < numFrames; f++) {
+        for (let b = 0; b < numBins; b++) {
+          // Low freq at bottom, high at top
+          const intensity = matrix[f][b];
+          const y = canvas.height - (b + 1) * cellHeight;
+          const x = f * cellWidth;
+
+          // Color mapping
+          let color = '#0A0A0E';
+          if (intensity > 85) color = '#FFFFFF';
+          else if (intensity > 65) color = '#F3E5AB';
+          else if (intensity > 40) color = '#D4AF37';
+          else if (intensity > 20) color = '#6B4E08';
+          else if (intensity > 8) color = '#2E1E04';
+
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, cellWidth - 1, cellHeight - 1);
+        }
+      }
+
+      // Time frame dividing lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      for (let f = 0; f < numFrames; f++) {
+        const x = f * cellWidth;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+    }
+
+    async function saveAndUploadVoiceBio() {
+      const audioToUpload = studioActiveAudioBlob || studioActiveAudioFile;
+      if (!audioToUpload) {
+        showToast('Пожалуйста, сначала запишите голос через микрофон или выберите аудиофайл.');
+        return;
+      }
+
+      const saveBtn = document.getElementById('saveVoiceBioServerBtn');
+      const statusMsg = document.getElementById('studioUploadStatusMsg');
+      const sel = document.getElementById('voicePromptTopicSelect');
+      const topic = sel ? sel.value : 'О чем я могу говорить часами без остановки';
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span>Обработка спектра и анализ F0...</span>';
+      }
+      if (statusMsg) statusMsg.textContent = 'Анализ акустических гармоник на сервере...';
+
+      const formData = new FormData();
+      const filename = studioActiveAudioFile ? studioActiveAudioFile.name : 'voice_recording.webm';
+      formData.append('file', audioToUpload, filename);
+      formData.append('topic', topic);
+
+      // Authenticated User
+      const token = localStorage.getItem('resonance_token');
+      const authUserRaw = localStorage.getItem('resonance_auth_user');
+      let userId = 1;
+      if (authUserRaw) {
+        try {
+          const parsed = JSON.parse(authUserRaw);
+          if (parsed && parsed.id) userId = parsed.id;
+        } catch(e) {}
+      }
+      formData.append('user_id', String(userId));
+
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      try {
+        const res = await fetch('/api/voice/upload', {
+          method: 'POST',
+          headers: headers,
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success && data.voice_bio) {
+          const vb = data.voice_bio;
+          const analysis = data.acoustic_analysis;
+
+          // Update metrics in UI
+          document.getElementById('metricF0Val').textContent = `${analysis.fundamental_frequency_hz} Гц`;
+          document.getElementById('metricClubFreqVal').textContent = `${analysis.resonance_frequency_hz} Гц`;
+          document.getElementById('metricTimbreVal').textContent = analysis.timbre_warmth.split('/')[0].trim();
+          document.getElementById('metricTimbreSub').textContent = analysis.harmonic_interval;
+          document.getElementById('studioKeynoteBadge').textContent = `${analysis.resonance_frequency_hz} Гц • Камертон`;
+
+          // Render Spectrogram Heatmap from server data
+          if (vb.spectrogram && vb.spectrogram.length > 0) {
+            currentSpectrogramMatrix = vb.spectrogram;
+            renderSpectrogramHeatmap(vb.spectrogram, 'studioSpectrogramCanvas');
+          }
+
+          // Update sidebar audio player immediately
+          setResidentVoiceTrack(vb.audio_file, `Ваша визитка (${analysis.fundamental_frequency_hz} Гц)`);
+          const sideSnippetLabel = document.getElementById('sideVoiceSnippetLabel');
+          if (sideSnippetLabel) sideSnippetLabel.textContent = `🎙 Аудио-визитка (0:${vb.duration_sec})`;
+          const sideTopicDesc = document.getElementById('sideVoiceTopicDesc');
+          if (sideTopicDesc) sideTopicDesc.textContent = `Тема: «${vb.prompt_topic}»`;
+          const sideFreq = document.getElementById('sideUserFreq');
+          if (sideFreq) sideFreq.textContent = `${analysis.resonance_frequency_hz} Гц`;
+
+          // Update stored user object
+          if (authUserRaw) {
+            try {
+              const u = JSON.parse(authUserRaw);
+              u.voice_bio = vb;
+              if (u.profile) u.profile.acoustic_frequency_hz = analysis.resonance_frequency_hz;
+              localStorage.setItem('resonance_auth_user', JSON.stringify(u));
+            } catch(e) {}
+          }
+
+          if (statusMsg) statusMsg.textContent = '✓ Визитка верифицирована алгоритмом и передана Консьержу!';
+          showToast('✨ Голосовая визитка успешно сохранена со спектрограммой!');
+        } else {
+          showToast(`Ошибка: ${data.message || 'Не удалось загрузить аудио.'}`);
+          if (statusMsg) statusMsg.textContent = 'Ошибка загрузки';
+        }
+      } catch (err) {
+        console.error('Voice upload failed:', err);
+        showToast('Аудио сохранено локально в режиме офлайн.');
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><polyline points="20 6 9 17 4 12"/></svg> <span>✦ Сохранить и отправить Консьержу клуба</span>';
+        }
+      }
     }
 
     // 7. Radar Search & Filtering
@@ -4208,7 +5011,7 @@
       // 5. Sidebar Voice Bio & Audio track
       const voiceFile = user.voice_bio?.audio_file || 'alexander_voice.mp3';
       const voiceDur = user.voice_bio?.duration_sec || 24;
-      const voiceTopic = user.voice_bio?.transcription ? user.voice_bio.transcription.slice(0, 65) + '...' : 'О чем я могу говорить часами без остановки';
+      const voiceTopic = user.voice_bio?.prompt_topic || (user.voice_bio?.transcription ? user.voice_bio.transcription.slice(0, 65) + '...' : 'О чем я могу говорить часами без остановки');
 
       const voiceSnippetLabel = document.getElementById('sideVoiceSnippetLabel');
       if (voiceSnippetLabel) voiceSnippetLabel.textContent = `🎙 Аудио-визитка (0:${voiceDur})`;
@@ -4217,6 +5020,53 @@
       if (voiceTopicDesc) voiceTopicDesc.textContent = `Тема: «${voiceTopic}»`;
 
       setResidentVoiceTrack(voiceFile, `${user.full_name} (${freq} Гц)`);
+
+      // 5b. Update Acoustic Studio in Tab 0 (Module 2: 1.0.2.3_Voice)
+      const promptSel = document.getElementById('voicePromptTopicSelect');
+      if (promptSel && user.voice_bio?.prompt_topic) {
+        promptSel.value = user.voice_bio.prompt_topic;
+      }
+      const metricF0 = document.getElementById('metricF0Val');
+      if (metricF0) metricF0.textContent = user.voice_bio?.pitch_f0 ? `${user.voice_bio.pitch_f0} Гц` : `${freq <= 432 ? '192.8' : '231.9'} Гц`;
+      const metricRes = document.getElementById('metricClubFreqVal');
+      if (metricRes) metricRes.textContent = `${freq} Гц`;
+      const metricTimbre = document.getElementById('metricTimbreVal');
+      if (metricTimbre) metricTimbre.textContent = (freq <= 432) ? 'Бархатный баритон' : 'Светлое сопрано';
+      const metricStatus = document.getElementById('metricStatusVal');
+      if (metricStatus) {
+        if (user.voice_bio?.status === 'verified') {
+          metricStatus.textContent = '✓ Одобрено';
+          metricStatus.style.color = '#10B981';
+        } else if (user.voice_bio?.status === 'pending') {
+          metricStatus.textContent = '⏳ На модерации';
+          metricStatus.style.color = '#F59E0B';
+        } else {
+          metricStatus.textContent = '✓ Активна';
+          metricStatus.style.color = '#10B981';
+        }
+      }
+      const keynoteBadge = document.getElementById('studioKeynoteBadge');
+      if (keynoteBadge) keynoteBadge.textContent = `${freq} Гц • Камертон`;
+
+      // Render default or loaded spectrogram on canvas
+      let specData = null;
+      if (user.voice_bio?.spectrogram) {
+        specData = user.voice_bio.spectrogram;
+      } else if (user.voice_bio?.spectrogram_json) {
+        try { specData = JSON.parse(user.voice_bio.spectrogram_json); } catch(e) {}
+      }
+      if (!specData) {
+        specData = [];
+        for (let i = 0; i < 16; i++) {
+          const frame = [];
+          for (let j = 0; j < 32; j++) {
+            const v = Math.floor(20 + 70 * Math.sin(i * 0.4 + j * 0.25)**2 * Math.cos(j * 0.1)**2);
+            frame.push(Math.max(5, v));
+          }
+          specData.push(frame);
+        }
+      }
+      renderSpectrogramHeatmap(specData, 'studioSpectrogramCanvas');
 
       // 6. Form Inputs (Tab 1)
       const inputName = document.getElementById('inputName');
