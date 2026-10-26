@@ -194,6 +194,157 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RegisterRequest(BaseModel):
+    full_name: str
+    email: str
+    phone: str
+    gender: str
+    age: int
+    city: str = "Москва"
+    target_gender: str = "Девушку"
+    goal: str = "Для романтических отношений"
+    password: str
+
+
+@app.post("/api/auth/register")
+def auth_register(req: RegisterRequest, response: Response):
+    """
+    Onboarding / Registration endpoint for new candidates:
+    - Validates presence of all required fields
+    - Checks for existing email in SQLite database
+    - Generates unique VIP pass code
+    - Creates User (status='waitlist', role='candidate') and Profile in DB
+    - Issues signed bearer session token and sets session cookie
+    """
+    import random
+    full_name = req.full_name.strip()
+    email = req.email.strip().lower()
+    phone = req.phone.strip()
+    password = req.password.strip()
+
+    if not full_name or not email or not phone or not password:
+        response.status_code = 400
+        return {
+            "success": False,
+            "error": "empty_fields",
+            "message": "Пожалуйста, заполните все обязательные поля анкеты."
+        }
+
+    if len(password) < 6:
+        response.status_code = 400
+        return {
+            "success": False,
+            "error": "short_password",
+            "message": "Пароль должен содержать не менее 6 символов."
+        }
+
+    if req.age < 18 or req.age > 120:
+        response.status_code = 400
+        return {
+            "success": False,
+            "error": "invalid_age",
+            "message": "Вступление в клуб «Резонанс» доступно только совершеннолетним кандидатам (от 18 лет)."
+        }
+
+    session = SyncSessionLocal()
+    try:
+        # Check if email is already in database
+        existing_email = session.query(User).filter(User.email.ilike(email)).first()
+        if existing_email:
+            response.status_code = 409
+            return {
+                "success": False,
+                "error": "email_exists",
+                "message": f"Пользователь с адресом {email} уже зарегистрирован в клубе. Пожалуйста, используйте форму входа."
+            }
+
+        # Check if phone is already registered
+        if phone:
+            existing_phone = session.query(User).filter(User.phone == phone).first()
+            if existing_phone:
+                response.status_code = 409
+                return {
+                    "success": False,
+                    "error": "phone_exists",
+                    "message": f"Пользователь с номером {phone} уже зарегистрирован в клубе. Пожалуйста, используйте форму входа."
+                }
+
+        city_map = {"msk": "Москва", "spb": "Санкт-Петербург", "other": "Другой город"}
+        city = city_map.get(req.city.lower(), req.city)
+
+        gender_map = {"male": "Мужчина", "female": "Женщина"}
+        gender = gender_map.get(req.gender.lower(), req.gender)
+
+        target_gender_map = {"woman": "Девушку", "man": "Мужчину", "any": "Не имеет значения"}
+        target_gender = target_gender_map.get(req.target_gender.lower(), req.target_gender)
+
+        goal_map = {
+            "romance": "Для романтических отношений",
+            "friendship": "Для дружбы и общения",
+            "leisure": "Для досуга и активностей"
+        }
+        goal = goal_map.get(req.goal.lower(), req.goal)
+
+        vip_code = f"RES-{random.randint(1000, 9999)}-WAIT"
+
+        user = User(
+            full_name=full_name,
+            email=email,
+            phone=phone,
+            gender=gender,
+            target_gender=target_gender,
+            goal=goal,
+            status="waitlist",
+            role="candidate",
+            vip_pass_code=vip_code,
+            reputation_score=5.0
+        )
+        user.set_password(password)
+        session.add(user)
+        session.flush()
+
+        profile = Profile(
+            user_id=user.id,
+            age=req.age,
+            city=city,
+            occupation="Кандидат клуба",
+            bio=f"Заявка в лист ожидания клуба «Резонанс». Цель: {goal}. Город: {city}.",
+            archetype="Искатель • Кандидат",
+            acoustic_frequency_hz=432 if gender == "Мужчина" else 528,
+            photos_unlocked=False
+        )
+        session.add(profile)
+        session.commit()
+
+        token = create_access_token(user.id, user.email, user.role)
+        response.set_cookie(
+            key="resonance_session",
+            value=token,
+            httponly=True,
+            samesite="lax",
+            max_age=86400 * 7
+        )
+
+        user_data = serialize_user(user, session=session)
+
+        return {
+            "success": True,
+            "message": "Заявка успешно принята в лист ожидания клуба!",
+            "access_token": token,
+            "user": user_data
+        }
+    except Exception as e:
+        session.rollback()
+        response.status_code = 400
+        return {
+            "success": False,
+            "error": "registration_failed",
+            "message": f"Ошибка регистрации: {str(e)}"
+        }
+    finally:
+        session.close()
+
+
 @app.post("/api/auth/login")
 def auth_login(req: LoginRequest, response: Response):
     """

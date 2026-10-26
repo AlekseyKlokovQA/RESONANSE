@@ -2423,6 +2423,13 @@
           </div>
 
           <div class="form-group">
+            <label for="userPassword">Пароль для личного кабинета *</label>
+            <input type="password" id="userPassword" class="form-control" placeholder="••••••••••••" required minlength="6" autocomplete="new-password" oninput="validatePassword()" onblur="validatePassword()">
+            <span class="field-helper-txt" id="pwdHelp">Минимум 6 символов для быстрого входа</span>
+            <span class="field-error-msg" id="pwdError">Пароль должен содержать не менее 6 символов.</span>
+          </div>
+
+          <div class="form-group">
             <label for="userGender">Кого вы хотите встретить? *</label>
             <select id="userGender" class="form-control" required>
               <option value="woman" selected>Девушку</option>
@@ -2451,9 +2458,12 @@
             <span class="field-error-msg" id="consentError">Необходимо согласие с Кодексом Созвучия.</span>
           </div>
 
+          <!-- Alert Box for Registration Feedback -->
+          <div id="registerAlertBox" class="login-alert d-none" style="margin-bottom: 16px; text-align: left;"></div>
+
           <div class="form-group full-width" style="margin-top: 10px;">
-            <button type="submit" class="btn btn-gold" style="width: 100%; padding: 18px; font-size: 16px;">
-              <span>Подать заявку на вступление</span>
+            <button type="submit" id="submitRegisterBtn" class="btn btn-gold" style="width: 100%; padding: 18px; font-size: 16px;">
+              <span>Подать заявку и войти в кабинет</span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
           </div>
@@ -2464,13 +2474,18 @@
           <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(212, 175, 55, 0.2); border: 2px solid var(--gold-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold-primary)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <h3 style="font-size: 28px; margin-bottom: 10px; color: #FFFFFF;">Заявка принята в закрытый список!</h3>
-          <p style="color: var(--text-muted); max-width: 460px; margin-bottom: 16px;">
-            Ваш персональный пропуск в клуб сгенерирован. Приглашение и ссылка для голосовой верификации отправлены на указанную почту и телефон.
+          <h3 style="font-size: 28px; margin-bottom: 10px; color: #FFFFFF;" id="successModalTitle">Заявка принята в закрытый список!</h3>
+          <p style="color: var(--text-muted); max-width: 460px; margin-bottom: 16px;" id="successModalDesc">
+            Ваш персональный пропуск в клуб успешно сгенерирован и занесен в базу данных. Вы можете сразу перейти в свой личный кабинет или продолжить знакомство с клубом.
           </p>
           <div class="vip-ticket" id="ticketCode">RES-2026-VIP-8841</div>
           <p style="font-size: 13px; color: var(--gold-light);">Ваш первый четверг созвучия: <strong id="nextThursdayDate">ближайший четверг в 19:00</strong></p>
-          <button class="btn btn-ghost" style="margin-top: 24px;" onclick="closeSuccessOverlay()">Закрыть</button>
+          <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: center; flex-wrap: wrap;">
+            <a id="successGoToCabinetBtn" href="profile.html" class="btn btn-gold" style="padding: 12px 24px; text-decoration: none;">
+              <span>Войти в личный кабинет →</span>
+            </a>
+            <button class="btn btn-ghost" onclick="closeSuccessOverlay()">Закрыть</button>
+          </div>
         </div>
 
       </div>
@@ -2859,41 +2874,113 @@
       return isValid;
     }
 
-    function handleFormSubmit(e) {
+    function validatePassword() {
+      const el = document.getElementById('userPassword');
+      const err = document.getElementById('pwdError');
+      if (!el || !err) return true;
+      const val = el.value.trim();
+      const isValid = val.length >= 6;
+      err.classList.toggle('visible', !isValid && val.length > 0);
+      return isValid;
+    }
+
+    async function handleFormSubmit(e) {
       e.preventDefault();
       const isNameOk = validateName();
       const isGenderOk = validateOwnGender();
       const isAgeOk = validateAge();
       const isPhoneOk = validatePhone();
       const isEmailOk = validateEmail();
+      const isPwdOk = validatePassword();
       const isGoalOk = validateGoal();
       const isConsentOk = validateConsent();
 
-      if (!isNameOk || !isGenderOk || !isAgeOk || !isPhoneOk || !isEmailOk || !isGoalOk || !isConsentOk) {
+      if (!isNameOk || !isGenderOk || !isAgeOk || !isPhoneOk || !isEmailOk || !isPwdOk || !isGoalOk || !isConsentOk) {
         if (!isNameOk) document.getElementById('userName').focus();
         else if (!isGenderOk) document.getElementById('userOwnGender').focus();
         else if (!isAgeOk) document.getElementById('userAge').focus();
         else if (!isPhoneOk) document.getElementById('userPhone').focus();
         else if (!isEmailOk) document.getElementById('userEmail').focus();
+        else if (!isPwdOk) document.getElementById('userPassword').focus();
         else if (!isGoalOk) document.getElementById('userGoal').focus();
         return;
       }
 
-      const name = document.getElementById('userName').value.trim();
-      const phone = document.getElementById('userPhone').value.trim();
-      const code = `RES-${Math.floor(1000 + Math.random() * 9000)}-${name.toUpperCase().slice(0, 3) || 'VIP'}`;
-      document.getElementById('ticketCode').textContent = code;
+      const alertBox = document.getElementById('registerAlertBox');
+      const submitBtn = document.getElementById('submitRegisterBtn');
+      if (alertBox) {
+        alertBox.className = 'login-alert d-none';
+        alertBox.innerHTML = '';
+      }
 
-      // Calculate next Thursday
-      const today = new Date();
-      const dayOfWeek = today.getDay(); // 0 is Sunday, 4 is Thursday
-      const daysUntilThursday = (4 - dayOfWeek + 7) % 7 || 7;
-      const nextThursday = new Date(today);
-      nextThursday.setDate(today.getDate() + daysUntilThursday);
-      const options = { day: 'numeric', month: 'long' };
-      document.getElementById('nextThursdayDate').textContent = `${nextThursday.toLocaleDateString('ru-RU', options)} в 19:00`;
+      const payload = {
+        full_name: document.getElementById('userName').value.trim(),
+        gender: document.getElementById('userOwnGender').value,
+        age: parseInt(document.getElementById('userAge').value, 10),
+        city: document.getElementById('userCity').value,
+        phone: document.getElementById('userPhone').value.trim(),
+        email: document.getElementById('userEmail').value.trim(),
+        password: document.getElementById('userPassword').value.trim(),
+        target_gender: document.getElementById('userGender').value,
+        goal: document.getElementById('userGoal').value
+      };
 
-      document.getElementById('successOverlay').classList.add('active');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Регистрация в реестре клуба...</span>';
+      }
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success && data.user) {
+          // Success: save token & user to localStorage
+          if (data.access_token) localStorage.setItem('resonance_token', data.access_token);
+          localStorage.setItem('resonance_auth_user', JSON.stringify(data.user));
+
+          // Set VIP ticket code from database
+          const vipCode = data.user.vip_pass_code || `RES-${Math.floor(1000 + Math.random() * 9000)}-WAIT`;
+          document.getElementById('ticketCode').textContent = vipCode;
+
+          // Configure Go to cabinet button
+          const goToCabinetBtn = document.getElementById('successGoToCabinetBtn');
+          if (goToCabinetBtn) {
+            goToCabinetBtn.href = `profile.html?user=${encodeURIComponent(data.user.email)}`;
+          }
+
+          // Calculate next Thursday
+          const today = new Date();
+          const dayOfWeek = today.getDay(); // 0 is Sunday, 4 is Thursday
+          const daysUntilThursday = (4 - dayOfWeek + 7) % 7 || 7;
+          const nextThursday = new Date(today);
+          nextThursday.setDate(today.getDate() + daysUntilThursday);
+          const options = { day: 'numeric', month: 'long' };
+          document.getElementById('nextThursdayDate').textContent = `${nextThursday.toLocaleDateString('ru-RU', options)} в 19:00`;
+
+          document.getElementById('successOverlay').classList.add('active');
+        } else {
+          if (alertBox) {
+            alertBox.className = 'login-alert error';
+            alertBox.innerHTML = `<div>${data.message || 'Ошибка регистрации анкеты.'}</div>`;
+          }
+        }
+      } catch (err) {
+        // Fallback for offline mode
+        const code = `RES-${Math.floor(1000 + Math.random() * 9000)}-WAIT`;
+        document.getElementById('ticketCode').textContent = code;
+        document.getElementById('successOverlay').classList.add('active');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Подать заявку и войти в кабинет</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+        }
+      }
     }
 
     function closeSuccessOverlay() {

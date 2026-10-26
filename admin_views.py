@@ -17,6 +17,10 @@ class UserAdmin(ModelView, model=User):
     icon = "fa-solid fa-users"
     category = "Клуб и Резиденты"
 
+    page_size = 50
+    page_size_options = [20, 50, 100]
+    column_default_sort = [(User.id, True)]
+
     column_list = [
         User.id,
         User.full_name,
@@ -85,6 +89,10 @@ class ProfileAdmin(ModelView, model=Profile):
     name_plural = "Профили Резидентов"
     icon = "fa-solid fa-id-badge"
     category = "Клуб и Резиденты"
+
+    page_size = 50
+    page_size_options = [20, 50, 100]
+    column_default_sort = [(Profile.id, True)]
 
     column_list = [
         Profile.id,
