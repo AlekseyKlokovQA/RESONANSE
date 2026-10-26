@@ -3,8 +3,14 @@ SQLAdmin ModelViews configured for Resonance Club Platform
 Provides automatic CRUD generation, localized labels, and in-table HTML5 audio players.
 """
 
+import random
+import datetime
 from markupsafe import Markup
-from sqladmin import ModelView
+from sqladmin import ModelView, action
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
+from sqlalchemy import select
+from database import AsyncSessionLocal
 from sqladmin.filters import AllUniqueStringValuesFilter, BooleanFilter
 from models import (
     User, Profile, VoiceBio, Question, WeeklyMatch, Venue, DateBooking, Subscription
@@ -58,6 +64,49 @@ class UserAdmin(ModelView, model=User):
         User.created_at: "Дата заявки"
     }
 
+    @action(
+        name="approve_candidate",
+        label="✓ Принять в клуб",
+        confirmation_message="Вы уверены, что хотите ПРИНЯТЬ выбранных кандидатов в резиденты Клуба?",
+        add_in_detail=True,
+        add_in_list=True
+    )
+    async def approve_candidate(self, request: Request) -> RedirectResponse:
+        pks = [int(pk) for pk in request.query_params.get("pks", "").split(",") if pk.isdigit()]
+        if pks:
+            async with AsyncSessionLocal() as session:
+                stmt = select(User).where(User.id.in_(pks))
+                result = await session.execute(stmt)
+                users = result.scalars().all()
+                for u in users:
+                    u.status = "verified_member"
+                    u.role = "resident"
+                    if not u.vip_pass_code or "WAIT" in u.vip_pass_code:
+                        u.vip_pass_code = f"RES-{random.randint(1000, 9999)}-VIP"
+                await session.commit()
+        referer = request.headers.get("referer") or "/admin/user/list"
+        return RedirectResponse(url=referer, status_code=303)
+
+    @action(
+        name="reject_candidate",
+        label="✕ Отклонить заявку",
+        confirmation_message="Вы уверены, что хотите ОТКЛОНИТЬ заявку выбранных кандидатов?",
+        add_in_detail=True,
+        add_in_list=True
+    )
+    async def reject_candidate(self, request: Request) -> RedirectResponse:
+        pks = [int(pk) for pk in request.query_params.get("pks", "").split(",") if pk.isdigit()]
+        if pks:
+            async with AsyncSessionLocal() as session:
+                stmt = select(User).where(User.id.in_(pks))
+                result = await session.execute(stmt)
+                users = result.scalars().all()
+                for u in users:
+                    u.status = "rejected"
+                await session.commit()
+        referer = request.headers.get("referer") or "/admin/user/list"
+        return RedirectResponse(url=referer, status_code=303)
+
     column_formatters = {
         User.role: lambda m, a: Markup(
             '<span class="badge bg-warning text-dark fw-bold px-2 py-1">👑 Superadmin</span>'
@@ -69,10 +118,32 @@ class UserAdmin(ModelView, model=User):
             else f'<span class="badge bg-secondary">{m.role}</span>'
         ),
         User.status: lambda m, a: Markup(
-            '<span class="badge-status badge-verified">✓ Верифицирован (VIP)</span>'
-            if m.status == "verified_member"
-            else '<span class="badge-status badge-waitlist">⏳ Лист ожидания</span>'
+            f'''
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <div>
+                    <span class="badge-status badge-waitlist">⏳ Лист ожидания</span>
+                </div>
+                <div class="d-flex align-items-center gap-1 mt-1">
+                    <a href="/admin/user/action/approve-candidate?pks={m.id}" class="btn btn-sm btn-success py-0 px-2" style="font-size: 11px; text-decoration: none;" title="Принять заявку в клуб">✓ Принять</a>
+                    <a href="/admin/user/action/reject-candidate?pks={m.id}" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 11px; text-decoration: none;" title="Отклонить заявку">✕ Отклонить</a>
+                </div>
+            </div>
+            '''
             if m.status == "waitlist"
+            else f'''
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span class="badge-status badge-verified">✓ Верифицирован (VIP)</span>
+                <a href="/admin/user/action/reject-candidate?pks={m.id}" class="btn btn-sm btn-link text-danger p-0" style="font-size: 10px; text-decoration: none;" title="Отозвать и отклонить заявку">Отклонить</a>
+            </div>
+            '''
+            if m.status == "verified_member"
+            else f'''
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span class="badge-status badge-rejected">✕ Отклонен</span>
+                <a href="/admin/user/action/approve-candidate?pks={m.id}" class="btn btn-sm btn-link text-success p-0" style="font-size: 10px; text-decoration: none;" title="Принять в клуб">Принять</a>
+            </div>
+            '''
+            if m.status == "rejected"
             else f'<span class="badge-status">{m.status}</span>'
         ),
         User.vip_pass_code: lambda m, a: Markup(
@@ -155,6 +226,8 @@ class VoiceBioAdmin(ModelView, model=VoiceBio):
     ]
 
     column_filters = [AllUniqueStringValuesFilter(VoiceBio.status)]
+    column_searchable_list = [VoiceBio.prompt_topic, VoiceBio.transcription]
+    column_sortable_list = [VoiceBio.id, VoiceBio.duration_sec, VoiceBio.pitch_f0, VoiceBio.status]
 
     column_labels = {
         VoiceBio.id: "ID",
@@ -167,6 +240,47 @@ class VoiceBioAdmin(ModelView, model=VoiceBio):
         VoiceBio.status: "Статус модерации",
         VoiceBio.verified_at: "Дата проверки"
     }
+
+    @action(
+        name="approve_voice",
+        label="✓ Принять визитку",
+        confirmation_message="Вы уверены, что хотите ПРИНЯТЬ выбранные аудиовизитки?",
+        add_in_detail=True,
+        add_in_list=True
+    )
+    async def approve_voice(self, request: Request) -> RedirectResponse:
+        pks = [int(pk) for pk in request.query_params.get("pks", "").split(",") if pk.isdigit()]
+        if pks:
+            async with AsyncSessionLocal() as session:
+                stmt = select(VoiceBio).where(VoiceBio.id.in_(pks))
+                result = await session.execute(stmt)
+                bios = result.scalars().all()
+                for b in bios:
+                    b.status = "verified"
+                    b.verified_at = datetime.datetime.now(datetime.timezone.utc)
+                await session.commit()
+        referer = request.headers.get("referer") or "/admin/voice-bio/list"
+        return RedirectResponse(url=referer, status_code=303)
+
+    @action(
+        name="reject_voice",
+        label="✕ Отклонить визитку",
+        confirmation_message="Вы уверены, что хотите ОТКЛОНИТЬ выбранные аудиовизитки?",
+        add_in_detail=True,
+        add_in_list=True
+    )
+    async def reject_voice(self, request: Request) -> RedirectResponse:
+        pks = [int(pk) for pk in request.query_params.get("pks", "").split(",") if pk.isdigit()]
+        if pks:
+            async with AsyncSessionLocal() as session:
+                stmt = select(VoiceBio).where(VoiceBio.id.in_(pks))
+                result = await session.execute(stmt)
+                bios = result.scalars().all()
+                for b in bios:
+                    b.status = "rejected"
+                await session.commit()
+        referer = request.headers.get("referer") or "/admin/voice-bio/list"
+        return RedirectResponse(url=referer, status_code=303)
 
     column_formatters = {
         VoiceBio.audio_file: lambda m, a: Markup(
@@ -184,11 +298,31 @@ class VoiceBioAdmin(ModelView, model=VoiceBio):
             f'<span class="badge-pitch">{m.pitch_f0:.1f} Гц</span>'
         ),
         VoiceBio.status: lambda m, a: Markup(
-            '<span class="badge-status badge-verified">✓ Одобрено</span>'
-            if m.status == "verified"
-            else '<span class="badge-status badge-pending">● На модерации</span>'
+            f'''
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <span class="badge-status badge-pending">● На модерации</span>
+                <div class="d-flex align-items-center gap-1 mt-1">
+                    <a href="/admin/voice-bio/action/approve-voice?pks={m.id}" class="btn btn-sm btn-success py-0 px-2" style="font-size: 11px; text-decoration: none;" title="Принять визитку">✓ Принять</a>
+                    <a href="/admin/voice-bio/action/reject-voice?pks={m.id}" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 11px; text-decoration: none;" title="Отклонить визитку">✕ Отклонить</a>
+                </div>
+            </div>
+            '''
             if m.status == "pending"
-            else '<span class="badge-status badge-rejected">✕ Отклонено</span>'
+            else f'''
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span class="badge-status badge-verified">✓ Принято</span>
+                <a href="/admin/voice-bio/action/reject-voice?pks={m.id}" class="btn btn-sm btn-link text-danger p-0" style="font-size: 10px; text-decoration: none;">Отклонить</a>
+            </div>
+            '''
+            if m.status == "verified"
+            else f'''
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span class="badge-status badge-rejected">✕ Отклонено</span>
+                <a href="/admin/voice-bio/action/approve-voice?pks={m.id}" class="btn btn-sm btn-link text-success p-0" style="font-size: 10px; text-decoration: none;">Принять</a>
+            </div>
+            '''
+            if m.status == "rejected"
+            else f'<span class="badge-status">{m.status}</span>'
         )
     }
 

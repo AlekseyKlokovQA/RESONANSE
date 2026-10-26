@@ -62,7 +62,7 @@
 <div class="mb-3 form-group row">
   {{ field.label(
     class_="form-label col-sm-2 col-form-label" + (' required-label' if field.flags.required else ''),
-    **({'title': "This is a required field"} if field.flags.required else {})
+    **({'title': "Обязательное поле для заполнения"} if field.flags.required else {})
   ) }}
   <div class="col-sm-10">
     {% if ajax_lookup_url and field.loader is defined %}

@@ -2369,10 +2369,15 @@ const App = {
           "${user.transcription.slice(0, 75)}..."
         </td>
         <td>
-          <button class="btn btn-gold btn-sm" onclick="App.verifyUser(${user.id}, true)" title="Одобрить и выдать VIP">
-            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
-            Одобрить
-          </button>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-gold btn-sm" onclick="App.verifyUser(${user.id}, true)" title="Принять заявку в клуб">
+              <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+              Принять
+            </button>
+            <button class="btn btn-danger-outline btn-sm" onclick="App.verifyUser(${user.id}, false)" title="Отклонить заявку">
+              ✕ Отклонить
+            </button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
@@ -2475,15 +2480,18 @@ const App = {
         <td>
           <div style="display: flex; gap: 6px;">
             ${isPending ? `
-              <button class="btn btn-gold btn-sm" onclick="App.verifyUser(${user.id}, true)" title="Одобрить">
+              <button class="btn btn-gold btn-sm" onclick="App.verifyUser(${user.id}, true)" title="Принять заявку в клуб">
                 <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
-                Одобрить
+                Принять
               </button>
-              <button class="btn btn-danger-outline btn-sm" onclick="App.verifyUser(${user.id}, false)" title="Отклонить">
-                ✕
+              <button class="btn btn-danger-outline btn-sm" onclick="App.verifyUser(${user.id}, false)" title="Отклонить заявку">
+                ✕ Отклонить
               </button>
             ` : `
               <button class="btn btn-outline btn-sm" onclick="App.showResidentDetails(${user.id})">Анкета</button>
+              <button class="btn btn-sm ${user.status === 'verified_member' ? 'btn-danger-outline' : 'btn-gold'}" style="font-size: 0.72rem; padding: 4px 8px;" onclick="App.verifyUser(${user.id}, ${user.status !== 'verified_member'})">
+                ${user.status === 'verified_member' ? 'Отклонить' : 'Принять'}
+              </button>
             `}
           </div>
         </td>
@@ -2500,9 +2508,13 @@ const App = {
       user.status = 'verified_member';
       user.vip_pass_code = `RES-${Math.floor(1000 + Math.random() * 9000)}-VIP`;
       this.showToast(`Кандидат ${user.full_name} успешно принят в клуб! Выдан VIP: ${user.vip_pass_code}`, 'success');
+      // Sync with backend API if available
+      fetch('/api/admin/candidates/' + userId + '/approve', { method: 'POST' }).catch(() => {});
     } else {
       user.status = 'rejected';
       this.showToast(`Заявка кандидата ${user.full_name} отклонена.`, 'danger');
+      // Sync with backend API if available
+      fetch('/api/admin/candidates/' + userId + '/reject', { method: 'POST' }).catch(() => {});
     }
 
     this.renderAllViews();

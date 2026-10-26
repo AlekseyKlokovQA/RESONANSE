@@ -48,7 +48,8 @@ def relative_req_url_for(self, name: str, /, **path_params):
 
 Request.url_for = relative_req_url_for
 
-from database import async_engine, init_db
+from sqlalchemy import select
+from database import async_engine, init_db, AsyncSessionLocal
 from seed_db import seed_database
 from admin_views import (
     UserAdmin,
@@ -886,6 +887,61 @@ def get_user_voice_bio(identifier: str, request: Request, response: Response):
         session.close()
 
 
+@app.post("/api/admin/candidates/{user_id}/approve")
+async def api_approve_candidate(user_id: int):
+    """Admin API: Approve waitlist candidate into full club resident with VIP status."""
+    async with AsyncSessionLocal() as session:
+        stmt = select(User).where(User.id == user_id)
+        res = await session.execute(stmt)
+        user = res.scalar_one_or_none()
+        if not user:
+            return JSONResponse(status_code=404, content={"success": False, "message": "Кандидат не найден"})
+
+        user.status = "verified_member"
+        user.role = "resident"
+        if not user.vip_pass_code or "WAIT" in user.vip_pass_code:
+            import random
+            user.vip_pass_code = f"RES-{random.randint(1000, 9999)}-VIP"
+        await session.commit()
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Кандидат {user.full_name} успешно принят в Клуб!",
+            "user": {
+                "id": user.id,
+                "full_name": user.full_name,
+                "status": user.status,
+                "role": user.role,
+                "vip_pass_code": user.vip_pass_code
+            }
+        })
+
+
+@app.post("/api/admin/candidates/{user_id}/reject")
+async def api_reject_candidate(user_id: int):
+    """Admin API: Reject waitlist candidate application."""
+    async with AsyncSessionLocal() as session:
+        stmt = select(User).where(User.id == user_id)
+        res = await session.execute(stmt)
+        user = res.scalar_one_or_none()
+        if not user:
+            return JSONResponse(status_code=404, content={"success": False, "message": "Кандидат не найден"})
+
+        user.status = "rejected"
+        await session.commit()
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Заявка кандидата {user.full_name} отклонена.",
+            "user": {
+                "id": user.id,
+                "full_name": user.full_name,
+                "status": user.status,
+                "role": user.role
+            }
+        })
+
+
 @app.api_route("/index.html", methods=["GET", "HEAD"])
 async def index_page():
     return FileResponse(os.path.join(BASE_DIR, "index.html"))
@@ -965,6 +1021,72 @@ if orig_sqladmin_url_for:
         return rel
 
     admin.templates.env.globals["url_for"] = relative_sqladmin_url_for
+
+# 100% Comprehensive Russian Localization for SQLAdmin UI Elements
+SQLADMIN_RU_TRANSLATIONS = {
+    "Export": "Экспорт",
+    "Import CSV": "Импорт CSV",
+    "New %(name)s": "+ Добавить: %(name)s",
+    "Actions": "Действия",
+    "Delete selected items": "Удалить выбранные",
+    "Search": "Поиск",
+    "Showing %(start)s to %(end)s of %(count)s items": "Показано с %(start)s по %(end)s из %(count)s записей",
+    "prev": "Назад",
+    "next": "Вперед",
+    "Show": "Показывать",
+    "%(size)s / Page": "по %(size)s записей",
+    "Filters": "Фильтры",
+    "Apply Filter": "Применить фильтр",
+    "Clear filter": "Сбросить фильтр",
+    "Column": "Поле",
+    "Value": "Значение",
+    "Go Back": "Назад к списку",
+    "Delete": "Удалить",
+    "Edit": "Редактировать",
+    "Edit %(name)s": "Редактирование: %(name)s",
+    "Save": "Сохранить",
+    "Save and continue editing": "Сохранить и продолжить",
+    "Save as new": "Сохранить как новую",
+    "Save and add another": "Сохранить и добавить еще",
+    "Cancel": "Отмена",
+    "Yes": "Да, подтверждаю",
+    "Please confirm": "Требуется подтверждение",
+    "Close": "Закрыть",
+    "Done": "Готово",
+    "View": "Просмотр карточки",
+    "Select all": "Выбрать все",
+    "Select item": "Выбрать запись",
+    "You are not authorized to view these records.": "У вас нет прав для просмотра этих записей.",
+    "Choose CSV file": "Выберите файл CSV",
+    "No file selected": "Файл не выбран",
+    "Skip invalid rows and continue import": "Пропускать невалидные строки",
+    "Import progress": "Прогресс импорта",
+    "%(processed)s/%(total)s rows processed": "Обработано %(processed)s из %(total)s строк",
+    "%(imported)s imported, %(skipped)s skipped, %(processed)s/%(total)s rows processed": "Импортировано %(imported)s, пропущено %(skipped)s, обработано %(processed)s/%(total)s",
+    "Import result": "Результат импорта",
+    "Missed rows": "Необработанные строки",
+    "Download CSV": "Скачать CSV",
+    "Download TXT": "Скачать TXT",
+    "Refresh list": "Обновить список",
+    "Login to %(title)s": "Вход в %(title)s",
+    "Username": "Имя пользователя",
+    "Password": "Пароль",
+    "Enter username": "Введите имя пользователя",
+    "Login": "Войти",
+    "Logout": "Выйти",
+    "Language": "Язык"
+}
+
+def sqladmin_ru_gettext(text: str, **kwargs) -> str:
+    translated = SQLADMIN_RU_TRANSLATIONS.get(text, text)
+    if kwargs:
+        try:
+            return translated % kwargs
+        except Exception:
+            return translated
+    return translated
+
+admin.templates.env.globals["_"] = sqladmin_ru_gettext
 
 # Register all ModelViews (auto-generates tables, forms, details, filters)
 admin.add_model_view(UserAdmin)
