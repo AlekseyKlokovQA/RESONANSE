@@ -14,15 +14,31 @@ import json
 import time
 import uvicorn
 import numpy as np
+from urllib.parse import urlparse
+from jinja2 import pass_context
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Response, UploadFile, File, Form
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.datastructures import URL
 from sqladmin import Admin
 from sqladmin.forms import ModelConverter, converts
 
 # Register Float converter for SQLAdmin auto-generated forms
 ModelConverter.conv_decimal = converts("Numeric", "Float")(ModelConverter.conv_decimal)
+
+# Patch Starlette Request.url_for to generate domain-relative URLs
+orig_req_url_for = Request.url_for
+
+def relative_req_url_for(self, name: str, /, **path_params):
+    url_path_provider = self.scope.get("router") or self.scope.get("app")
+    if url_path_provider is None:
+        raise RuntimeError("The url_for method can only be used inside a Starlette application")
+    url_path = url_path_provider.url_path_for(name, **path_params)
+    return URL(str(url_path))
+
+Request.url_for = relative_req_url_for
 
 from database import async_engine, init_db
 from seed_db import seed_database
@@ -54,6 +70,57 @@ app = FastAPI(
     version="1.0.2",
     lifespan=lifespan
 )
+
+
+class RelativeUrlMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+
+        # 1. Clean up Location header in redirects
+        loc = response.headers.get("location")
+        if loc:
+            parsed = urlparse(loc)
+            host = request.headers.get("host", "")
+            if parsed.netloc and (parsed.netloc == host or parsed.netloc in ["127.0.0.1:3000", "localhost:3000", "0.0.0.0:3000", "testserver"]):
+                rel_loc = parsed.path
+                if parsed.query:
+                    rel_loc += "?" + parsed.query
+                response.headers["location"] = rel_loc
+
+        # 2. Convert absolute local hostnames to domain-relative URLs in HTML bodies
+        content_type = response.headers.get("content-type", "")
+        if "text/html" in content_type:
+            body = [section async for section in response.body_iterator]
+            body_bytes = b"".join(body)
+
+            host_str = request.headers.get("host", "")
+            replacements = [
+                b"http://127.0.0.1:3000",
+                b"http://localhost:3000",
+                b"http://0.0.0.0:3000",
+                b"http://testserver",
+            ]
+            if host_str:
+                replacements.append(f"http://{host_str}".encode("utf-8"))
+                replacements.append(f"https://{host_str}".encode("utf-8"))
+
+            for target in replacements:
+                if target in body_bytes:
+                    body_bytes = body_bytes.replace(target, b"")
+
+            headers = dict(response.headers)
+            headers["content-length"] = str(len(body_bytes))
+            return Response(
+                content=body_bytes,
+                status_code=response.status_code,
+                headers=headers,
+                media_type=response.media_type
+            )
+
+        return response
+
+
+app.add_middleware(RelativeUrlMiddleware)
 
 # Mount static CSS / assets
 static_dir = os.path.join(BASE_DIR, "static")
@@ -810,7 +877,14 @@ async def profile_page():
     return FileResponse(os.path.join(BASE_DIR, "profile.html"))
 
 
+@app.api_route("/admin", methods=["GET", "HEAD"])
+async def admin_root_redirect(request: Request):
+    """Provides relative redirect to /admin/ ensuring preview proxies and local tunnels resolve cleanly."""
+    return RedirectResponse(url="/admin/", status_code=307)
+
+
 @app.api_route("/admin.htm", methods=["GET", "HEAD"])
+@app.api_route("/admin.html", methods=["GET", "HEAD"])
 async def admin_htm_page():
     return FileResponse(os.path.join(BASE_DIR, "admin.htm"))
 
@@ -857,6 +931,20 @@ admin = Admin(
     logo_url="/logo.svg",
     templates_dir=templates_dir
 )
+
+# Convert all Starlette/SQLAdmin absolute URLs to relative paths (prevents 404/hostname mismatch in preview proxies)
+orig_sqladmin_url_for = admin.templates.env.globals.get("url_for")
+if orig_sqladmin_url_for:
+    @pass_context
+    def relative_sqladmin_url_for(context, name: str, **path_params):
+        u = orig_sqladmin_url_for(context, name, **path_params)
+        parsed = urlparse(str(u))
+        rel = parsed.path
+        if parsed.query:
+            rel += "?" + parsed.query
+        return rel
+
+    admin.templates.env.globals["url_for"] = relative_sqladmin_url_for
 
 # Register all ModelViews (auto-generates tables, forms, details, filters)
 admin.add_model_view(UserAdmin)
