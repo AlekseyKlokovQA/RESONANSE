@@ -453,12 +453,14 @@
       position: relative;
       overflow: hidden;
       height: 110px;
+      display: none;
+      margin-bottom: 16px;
     }
 
     #liveAudioVisualizer {
       width: 100%;
       height: 100%;
-      display: block;
+      display: none;
     }
 
     .visualizer-overlay-info {
@@ -2125,8 +2127,8 @@
 
             <!-- Live Microphone Recorder Area -->
             <div id="studioRecordArea" class="studio-subpanel active">
-              <div class="visualizer-box">
-                <canvas id="liveAudioVisualizer" width="600" height="110"></canvas>
+              <div class="visualizer-box" id="visualizerBox" style="display: none; margin-bottom: 16px;">
+                <canvas id="liveAudioVisualizer" width="600" height="110" style="display: none;"></canvas>
                 <div class="visualizer-overlay-info">
                   <div class="live-rec-status" id="liveRecStatus">
                     <span class="status-dot"></span>
@@ -3303,6 +3305,12 @@
         if (statusBox) statusBox.classList.add('recording');
         if (statusTxt) statusTxt.textContent = 'Идет запись речи... Говорите свободно';
 
+        // Show live visualizer box & canvas during recording
+        const vizBox = document.getElementById('visualizerBox');
+        const vizCanvas = document.getElementById('liveAudioVisualizer');
+        if (vizBox) vizBox.style.display = 'block';
+        if (vizCanvas) vizCanvas.style.display = 'block';
+
         // Start Timer
         const timerEl = document.getElementById('liveRecTimer');
         studioTimerInterval = setInterval(() => {
@@ -3343,6 +3351,12 @@
       }
 
       isStudioRecording = false;
+
+      // Hide live visualizer canvas & box after recording finishes
+      const vizBox = document.getElementById('visualizerBox');
+      const vizCanvas = document.getElementById('liveAudioVisualizer');
+      if (vizBox) vizBox.style.display = 'none';
+      if (vizCanvas) vizCanvas.style.display = 'none';
 
       // Update UI
       const recBtn = document.getElementById('startRecBtn');
