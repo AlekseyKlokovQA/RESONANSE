@@ -561,11 +561,19 @@
 
     .spectrogram-canvas-wrap {
       position: relative;
-      background: #08080A;
-      border: 1px solid rgba(212, 175, 55, 0.25);
+      background: radial-gradient(circle at 50% 50%, #111018 0%, #08080A 100%);
+      border: 1px solid rgba(212, 175, 55, 0.35);
       border-radius: var(--radius-md);
       overflow: hidden;
-      height: 130px;
+      height: 165px;
+      cursor: crosshair;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), inset 0 0 35px rgba(212, 175, 55, 0.05);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .spectrogram-canvas-wrap:hover {
+      border-color: rgba(212, 175, 55, 0.6);
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(212, 175, 55, 0.08);
     }
 
     #studioSpectrogramCanvas {
@@ -576,17 +584,65 @@
 
     .spectrogram-axis-y {
       position: absolute;
-      top: 6px;
-      right: 8px;
-      bottom: 6px;
+      top: 8px;
+      right: 12px;
+      bottom: 8px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       font-size: 9px;
+      letter-spacing: 0.5px;
       color: var(--gold-light);
-      opacity: 0.6;
+      opacity: 0.7;
       pointer-events: none;
       text-align: right;
+      z-index: 2;
+    }
+
+    .spectrogram-axis-x {
+      position: absolute;
+      left: 12px;
+      right: 50px;
+      bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 8px;
+      letter-spacing: 0.5px;
+      color: var(--gold-light);
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .spectrogram-formants-left {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 9px;
+      letter-spacing: 0.5px;
+      color: rgba(243, 229, 171, 0.75);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .spectrogram-hover-tooltip {
+      position: absolute;
+      display: none;
+      pointer-events: none;
+      background: rgba(14, 14, 18, 0.95);
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 10px;
+      color: var(--gold-light);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+      transform: translate(-50%, -125%);
+      white-space: nowrap;
+      z-index: 10;
+      backdrop-filter: blur(4px);
     }
 
     .acoustic-metrics-grid {
@@ -2109,18 +2165,41 @@
 
             <!-- Spectrogram & Acoustic Analysis Section -->
             <div class="spectrogram-section" style="margin-top: 22px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label class="field-label" style="margin-bottom: 0;">2D-Спектрограмма голоса (Частотно-временной спектр):</label>
-                <span style="font-size: 11px; color: var(--text-muted);">FFT 512 • 32 диапазона частот (0–4000 Гц)</span>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <label class="field-label" style="margin-bottom: 0;">2D-Спектрограмма голоса (Квантовые струны тембра):</label>
+                  <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 2px 8px; font-size: 10px; color: var(--gold-light);">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #D4AF37; box-shadow: 0 0 6px #D4AF37;"></span>
+                    Particle Acoustic Field
+                  </span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="font-size: 11px; color: var(--text-muted);">FFT 512 • 432 Гц • 32 диапазона</span>
+                  <span style="font-size: 10px; color: var(--gold-primary); opacity: 0.85;">✦ Интерактивный скраббер</span>
+                </div>
               </div>
-              <div class="spectrogram-canvas-wrap">
-                <canvas id="studioSpectrogramCanvas" width="600" height="130"></canvas>
+              <div class="spectrogram-canvas-wrap" id="spectrogramWrap">
+                <canvas id="studioSpectrogramCanvas" width="800" height="165"></canvas>
+                <div class="spectrogram-formants-left">
+                  <span>✦ F3 • 2.6 кГц (Обертоны)</span>
+                  <span>✦ F2 • 1.3 кГц (Яркость)</span>
+                  <span>✦ F1 • 512 Гц (Грудь)</span>
+                </div>
                 <div class="spectrogram-axis-y">
                   <span>4 кГц</span>
                   <span>2 кГц</span>
+                  <span>1 кГц</span>
                   <span>500 Гц</span>
                   <span>75 Гц</span>
                 </div>
+                <div class="spectrogram-axis-x">
+                  <span>00:00</span>
+                  <span>00:08</span>
+                  <span>00:16</span>
+                  <span>00:24</span>
+                  <span>00:30 сек</span>
+                </div>
+                <div id="spectrogramHoverTooltip" class="spectrogram-hover-tooltip">00:00 • 432 Гц</div>
               </div>
             </div>
 
@@ -3385,49 +3464,460 @@
       renderSpectrogramHeatmap(matrix, 'studioSpectrogramCanvas');
     }
 
-    function renderSpectrogramHeatmap(matrix, canvasId) {
-      const canvas = document.getElementById(canvasId || 'studioSpectrogramCanvas');
-      if (!canvas || !matrix || matrix.length === 0) return;
-      const ctx = canvas.getContext('2d');
-      const numFrames = matrix.length;
-      const numBins = matrix[0].length;
+    // =========================================================================
+    // OPTION 5: QUANTUM STRINGS & PARTICLE ACOUSTIC FIELD (1.0.2.3_Voice)
+    // =========================================================================
+    const QuantumSpectrogram = (function() {
+      let canvas = null;
+      let ctx = null;
+      let animId = null;
+      let matrixData = null;
+      let particles = [];
+      let mouse = { x: -1000, y: -1000, active: false };
+      let lastTime = 0;
+      let globalPhase = 0;
+      let playheadX = -1;
+      let tooltipEl = null;
+      let eventsAttached = false;
 
-      const cellWidth = canvas.width / numFrames;
-      const cellHeight = canvas.height / numBins;
+      const NUM_PARTICLES = 160;
 
-      ctx.fillStyle = '#08080A';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const PALETTE = {
+        bg: '#070709',
+        goldLight: '#FFF4D0',
+        goldPrimary: '#D4AF37',
+        goldWarm: '#F59E0B',
+        amberDeep: '#B45309'
+      };
 
-      for (let f = 0; f < numFrames; f++) {
-        for (let b = 0; b < numBins; b++) {
-          // Low freq at bottom, high at top
-          const intensity = matrix[f][b];
-          const y = canvas.height - (b + 1) * cellHeight;
-          const x = f * cellWidth;
-
-          // Color mapping
-          let color = '#0A0A0E';
-          if (intensity > 85) color = '#FFFFFF';
-          else if (intensity > 65) color = '#F3E5AB';
-          else if (intensity > 40) color = '#D4AF37';
-          else if (intensity > 20) color = '#6B4E08';
-          else if (intensity > 8) color = '#2E1E04';
-
-          ctx.fillStyle = color;
-          ctx.fillRect(x, y, cellWidth - 1, cellHeight - 1);
+      function initParticles(w, h) {
+        particles = [];
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+          const depth = 0.25 + Math.random() * 0.95; // 0.25 (far bokeh) to 1.2 (sharp near)
+          particles.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 0.35 * depth,
+            vy: (Math.random() - 0.5) * 0.25 * depth,
+            depth: depth,
+            radius: depth < 0.6 ? (2.2 + Math.random() * 2.8) : (0.8 + Math.random() * 1.6),
+            alpha: depth < 0.6 ? (0.12 + Math.random() * 0.25) : (0.5 + Math.random() * 0.5),
+            phase: Math.random() * Math.PI * 2,
+            speed: 0.001 + Math.random() * 0.002,
+            color: depth < 0.6 
+              ? (Math.random() > 0.5 ? '#B45309' : '#D4AF37')
+              : (Math.random() > 0.6 ? '#FFF8DC' : (Math.random() > 0.3 ? '#D4AF37' : '#F59E0B'))
+          });
         }
       }
 
-      // Time frame dividing lines
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.lineWidth = 1;
-      for (let f = 0; f < numFrames; f++) {
-        const x = f * cellWidth;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
+      function getFormantPoints(matrix, w, h, timeOffset) {
+        if (!matrix || matrix.length === 0) return { f1: [], f2: [], f3: [], nodes: [] };
+        const numFrames = matrix.length;
+        const numBins = matrix[0].length;
+        const dx = w / Math.max(1, numFrames - 1);
+
+        const f1Pts = [];
+        const f2Pts = [];
+        const f3Pts = [];
+        const nodes = [];
+
+        for (let f = 0; f < numFrames; f++) {
+          const x = f * dx;
+          const frame = matrix[f];
+
+          // F1 (Chest / Low Formant): bins 2 to 8
+          let maxF1 = -1, binF1 = 4;
+          for (let b = 2; b <= 8 && b < numBins; b++) {
+            if (frame[b] > maxF1) { maxF1 = frame[b]; binF1 = b; }
+          }
+
+          // F2 (Timbre / Mid Formant): bins 9 to 18
+          let maxF2 = -1, binF2 = 13;
+          for (let b = 9; b <= 18 && b < numBins; b++) {
+            if (frame[b] > maxF2) { maxF2 = frame[b]; binF2 = b; }
+          }
+
+          // F3 (Air / Shimmer): bins 19 to 28
+          let maxF3 = -1, binF3 = 23;
+          for (let b = 19; b <= 28 && b < numBins; b++) {
+            if (frame[b] > maxF3) { maxF3 = frame[b]; binF3 = b; }
+          }
+
+          const normY1 = 1 - (binF1 / numBins);
+          const normY2 = 1 - (binF2 / numBins);
+          const normY3 = 1 - (binF3 / numBins);
+
+          const waveShift = Math.sin(f * 0.5 + timeOffset * 2) * (maxF1 * 0.04);
+
+          const y1 = Math.max(20, Math.min(h - 22, normY1 * (h - 36) + 18 + waveShift));
+          const y2 = Math.max(20, Math.min(h - 22, normY2 * (h - 36) + 18 - waveShift * 0.8));
+          const y3 = Math.max(16, Math.min(h - 22, normY3 * (h - 36) + 18 + waveShift * 0.5));
+
+          f1Pts.push({ x, y: y1, intensity: maxF1 });
+          f2Pts.push({ x, y: y2, intensity: maxF2 });
+          f3Pts.push({ x, y: y3, intensity: maxF3 });
+
+          if (maxF1 > 40) {
+            nodes.push({ x, y: y1, intensity: maxF1, formant: 'F1', freq: Math.round(binF1 * 125) });
+          }
+          if (maxF2 > 40) {
+            nodes.push({ x, y: y2, intensity: maxF2, formant: 'F2', freq: Math.round(binF2 * 125) });
+          }
+          if (maxF3 > 45) {
+            nodes.push({ x, y: y3, intensity: maxF3, formant: 'F3', freq: Math.round(binF3 * 125) });
+          }
+        }
+
+        return { f1: f1Pts, f2: f2Pts, f3: f3Pts, nodes };
       }
+
+      function drawSmoothCurve(ctx, points, color, lineWidth, shadowGlow) {
+        if (!points || points.length < 2) return;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+
+        for (let i = 0; i < points.length - 1; i++) {
+          const xc = (points[i].x + points[i + 1].x) / 2;
+          const yc = (points[i].y + points[i + 1].y) / 2;
+          ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+        }
+        const last = points[points.length - 1];
+        ctx.lineTo(last.x, last.y);
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        if (shadowGlow) {
+          ctx.shadowColor = shadowGlow;
+          ctx.shadowBlur = 14;
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawStrands(ctx, points, baseColor, count, phaseOffset, timeOffset) {
+        for (let s = 0; s < count; s++) {
+          const strandPts = points.map((p, idx) => {
+            const shift = Math.sin(idx * 0.6 + s * 1.8 + timeOffset * 3) * (2.2 + (s % 2) * 1.5);
+            return { x: p.x, y: p.y + shift };
+          });
+          const alpha = s === 0 ? 0.95 : (0.45 - s * 0.12);
+          const lw = s === 0 ? 2.0 : 1.0;
+          drawSmoothCurve(ctx, strandPts, baseColor.replace('ALPHA', String(alpha)), lw, s === 0 ? 'rgba(212, 175, 55, 0.5)' : null);
+        }
+      }
+
+      function renderFrame(timestamp) {
+        if (!canvas) return;
+        if (!lastTime) lastTime = timestamp;
+        const dt = (timestamp - lastTime) / 1000;
+        lastTime = timestamp;
+        globalPhase += dt;
+
+        const w = canvas.width;
+        const h = canvas.height;
+
+        ctx.save();
+        ctx.fillStyle = PALETTE.bg;
+        ctx.fillRect(0, 0, w, h);
+
+        // Center ambient radial golden glow
+        const radGlow = ctx.createRadialGradient(w * 0.5, h * 0.5, 20, w * 0.5, h * 0.5, w * 0.6);
+        radGlow.addColorStop(0, 'rgba(212, 175, 55, 0.09)');
+        radGlow.addColorStop(0.5, 'rgba(180, 83, 9, 0.04)');
+        radGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = radGlow;
+        ctx.fillRect(0, 0, w, h);
+
+        // Grid lines (faint golden horizontal markers)
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 7]);
+        const gridFrequencies = [0.15, 0.35, 0.60, 0.85];
+        for (let gy of gridFrequencies) {
+          const y = h * gy;
+          ctx.strokeStyle = gy === 0.60 ? 'rgba(212, 175, 55, 0.22)' : 'rgba(255, 255, 255, 0.05)';
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(w, y);
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        const formants = getFormantPoints(matrixData, w, h, globalPhase);
+
+        // 1. Draw Background Bokeh Particles (depth < 0.6)
+        ctx.save();
+        for (let p of particles) {
+          if (p.depth < 0.6) {
+            p.x += p.vx;
+            p.y += p.vy + Math.sin(globalPhase + p.phase) * 0.15;
+            if (p.x < 0) p.x = w;
+            if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h;
+            if (p.y > h) p.y = 0;
+
+            const bgGlow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+            bgGlow.addColorStop(0, p.color === '#B45309' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(212, 175, 55, 0.25)');
+            bgGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = bgGlow;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+
+        // 2. Translucent Ribbon Fill between F1 and F2
+        if (formants.f1.length > 0 && formants.f2.length > 0) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(formants.f2[0].x, formants.f2[0].y);
+          for (let i = 0; i < formants.f2.length - 1; i++) {
+            const xc = (formants.f2[i].x + formants.f2[i + 1].x) / 2;
+            const yc = (formants.f2[i].y + formants.f2[i + 1].y) / 2;
+            ctx.quadraticCurveTo(formants.f2[i].x, formants.f2[i].y, xc, yc);
+          }
+          ctx.lineTo(formants.f2[formants.f2.length - 1].x, formants.f2[formants.f2.length - 1].y);
+
+          for (let i = formants.f1.length - 1; i >= 0; i--) {
+            ctx.lineTo(formants.f1[i].x, formants.f1[i].y);
+          }
+          ctx.closePath();
+          const ribbonGrad = ctx.createLinearGradient(0, h * 0.2, 0, h * 0.85);
+          ribbonGrad.addColorStop(0, 'rgba(212, 175, 55, 0.03)');
+          ribbonGrad.addColorStop(0.5, 'rgba(212, 175, 55, 0.08)');
+          ribbonGrad.addColorStop(1, 'rgba(180, 83, 9, 0.02)');
+          ctx.fillStyle = ribbonGrad;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 3. Draw Quantum Filaments (Braided Gold Strands)
+        drawStrands(ctx, formants.f1, 'rgba(212, 175, 55, ALPHA)', 3, 0.0, globalPhase);
+        drawStrands(ctx, formants.f2, 'rgba(243, 229, 171, ALPHA)', 3, 1.2, globalPhase * 1.2);
+        drawStrands(ctx, formants.f3, 'rgba(255, 248, 220, ALPHA)', 2, 2.4, globalPhase * 0.8);
+
+        // 4. Harmonic Connectors between F1 and F2 Nodes
+        ctx.save();
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.15)';
+        ctx.setLineDash([2, 4]);
+        for (let i = 0; i < formants.f1.length; i += 2) {
+          ctx.beginPath();
+          ctx.moveTo(formants.f1[i].x, formants.f1[i].y);
+          ctx.lineTo(formants.f2[i].x, formants.f2[i].y);
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // 5. Draw Foreground Crisp Stardust Particles & Attractor Dynamics
+        ctx.save();
+        for (let p of particles) {
+          if (p.depth >= 0.6) {
+            if (mouse.active) {
+              const mdx = p.x - mouse.x;
+              const mdy = p.y - mouse.y;
+              const dist = Math.sqrt(mdx * mdx + mdy * mdy);
+              if (dist < 70 && dist > 1) {
+                const force = (70 - dist) / 70;
+                p.x += (mdx / dist) * force * 3;
+                p.y += (mdy / dist) * force * 3;
+              }
+            }
+
+            p.x += p.vx + Math.sin(globalPhase * 1.5 + p.phase) * 0.25;
+            p.y += p.vy + Math.cos(globalPhase * 1.5 + p.phase) * 0.25;
+
+            if (p.x < 0) p.x = w;
+            if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h;
+            if (p.y > h) p.y = 0;
+
+            ctx.fillStyle = p.color;
+            ctx.shadowColor = '#D4AF37';
+            ctx.shadowBlur = p.depth > 0.9 ? 6 : 2;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+
+        // 6. Draw Radiant Formant Resonant Nodes
+        ctx.save();
+        for (let n of formants.nodes) {
+          const pulse = Math.sin(globalPhase * 3 + n.x * 0.05) * 1.2;
+          const nodeRad = 3.5 + (n.intensity / 100) * 3 + pulse;
+
+          const halo = ctx.createRadialGradient(n.x, n.y, 1, n.x, n.y, nodeRad * 3.5);
+          halo.addColorStop(0, 'rgba(255, 244, 208, 0.8)');
+          halo.addColorStop(0.35, 'rgba(212, 175, 55, 0.4)');
+          halo.addColorStop(1, 'rgba(212, 175, 55, 0.0)');
+          ctx.fillStyle = halo;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, nodeRad * 3.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // 7. Audio Playback Sync & Golden Laser Playhead
+        updateAudioPlayhead(w, h);
+
+        // 8. Mouse Guide Line & Hover HUD
+        if (mouse.active && mouse.x >= 0 && mouse.x <= w) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([2, 3]);
+          ctx.beginPath();
+          ctx.moveTo(mouse.x, 0);
+          ctx.lineTo(mouse.x, h);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        animId = requestAnimationFrame(renderFrame);
+      }
+
+      function updateAudioPlayhead(w, h) {
+        let activeAudio = document.getElementById('studioAudioPreview');
+        if (!activeAudio || !activeAudio.duration || activeAudio.paused) {
+          if (window.sidebarAudioInstance && !window.sidebarAudioInstance.paused && window.sidebarAudioInstance.duration) {
+            activeAudio = window.sidebarAudioInstance;
+          }
+        }
+
+        if (activeAudio && activeAudio.duration && !isNaN(activeAudio.duration) && activeAudio.currentTime > 0) {
+          const progress = activeAudio.currentTime / activeAudio.duration;
+          playheadX = progress * w;
+
+          ctx.save();
+          const laserGrad = ctx.createLinearGradient(playheadX, 0, playheadX, h);
+          laserGrad.addColorStop(0, 'rgba(255, 248, 220, 0.95)');
+          laserGrad.addColorStop(0.5, 'rgba(212, 175, 55, 0.85)');
+          laserGrad.addColorStop(1, 'rgba(180, 83, 9, 0.7)');
+
+          ctx.shadowColor = '#D4AF37';
+          ctx.shadowBlur = 12;
+          ctx.strokeStyle = laserGrad;
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.moveTo(playheadX, 0);
+          ctx.lineTo(playheadX, h);
+          ctx.stroke();
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.shadowBlur = 16;
+          ctx.beginPath();
+          ctx.arc(playheadX, 10, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          playheadX = -1;
+        }
+      }
+
+      function handleMouseMove(e) {
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        mouse.x = (e.clientX - rect.left) * scaleX;
+        mouse.y = (e.clientY - rect.top) * scaleY;
+        mouse.active = true;
+
+        if (!tooltipEl) tooltipEl = document.getElementById('spectrogramHoverTooltip');
+        if (tooltipEl) {
+          tooltipEl.style.display = 'block';
+          tooltipEl.style.left = `${e.clientX - rect.left}px`;
+          tooltipEl.style.top = `${e.clientY - rect.top}px`;
+
+          const normX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+          const totalSec = 30;
+          const curSec = (normX * totalSec).toFixed(1);
+          const mins = String(Math.floor(curSec / 60)).padStart(2, '0');
+          const secs = String(Math.floor(curSec % 60)).padStart(2, '0');
+
+          const normY = 1 - Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+          const freqHz = Math.round(75 + normY * (4000 - 75));
+          let formantName = 'Камертон';
+          if (freqHz < 400) formantName = 'Басовый регистр';
+          else if (freqHz < 900) formantName = 'F1 (Грудной тон)';
+          else if (freqHz < 1900) formantName = 'F2 (Яркость речи)';
+          else if (freqHz < 3200) formantName = 'F3 (Воздух / Обертон)';
+          else formantName = 'Высокие форманты';
+
+          tooltipEl.innerHTML = `⏱ ${mins}:${secs} • <strong>${freqHz} Гц</strong> • <span style="color:#D4AF37;">${formantName}</span>`;
+        }
+      }
+
+      function handleMouseLeave() {
+        mouse.active = false;
+        if (tooltipEl) tooltipEl.style.display = 'none';
+      }
+
+      function handleCanvasClick(e) {
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const normX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+
+        let activeAudio = document.getElementById('studioAudioPreview');
+        if (!activeAudio || !activeAudio.duration || isNaN(activeAudio.duration)) {
+          if (window.sidebarAudioInstance && window.sidebarAudioInstance.duration) {
+            activeAudio = window.sidebarAudioInstance;
+          }
+        }
+
+        if (activeAudio && activeAudio.duration && !isNaN(activeAudio.duration)) {
+          activeAudio.currentTime = normX * activeAudio.duration;
+          if (activeAudio.paused) {
+            activeAudio.play().catch(() => {});
+          }
+          const totalSec = activeAudio.duration;
+          const curSec = (normX * totalSec).toFixed(1);
+          showToast(`Перемотка: ${curSec} сек.`);
+        }
+      }
+
+      function setMatrix(matrix, canvasId) {
+        canvas = document.getElementById(canvasId || 'studioSpectrogramCanvas');
+        if (!canvas) return;
+        ctx = canvas.getContext('2d');
+        matrixData = matrix;
+
+        if (particles.length === 0) {
+          initParticles(canvas.width, canvas.height);
+        }
+
+        if (!eventsAttached) {
+          eventsAttached = true;
+          canvas.addEventListener('mousemove', handleMouseMove);
+          canvas.addEventListener('mouseleave', handleMouseLeave);
+          canvas.addEventListener('click', handleCanvasClick);
+        }
+
+        if (!animId) {
+          animId = requestAnimationFrame(renderFrame);
+        }
+      }
+
+      return {
+        setMatrix: setMatrix
+      };
+    })();
+
+    function renderSpectrogramHeatmap(matrix, canvasId) {
+      currentSpectrogramMatrix = matrix;
+      QuantumSpectrogram.setMatrix(matrix, canvasId || 'studioSpectrogramCanvas');
     }
 
     async function saveAndUploadVoiceBio() {
